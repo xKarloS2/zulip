@@ -23,7 +23,7 @@ from zerver.lib.response import json_response
 from zerver.lib.event_queue import process_notification, missedmessage_hook
 from zerver.lib.event_queue import setup_event_queue, add_client_gc_hook, \
     get_descriptor_by_handler_id, clear_handler_by_id
-from zerver.lib.handlers import allocate_handler_id
+from zerver.lib.handlers import allocate_handler_id, process_events_response
 from zerver.lib.queue import setup_tornado_rabbitmq
 from zerver.lib.socket import get_sockjs_router, respond_send_message
 from zerver.middleware import async_request_stop
@@ -98,6 +98,8 @@ class Command(BaseCommand):
                 # Process notifications received via RabbitMQ
                 queue_client.register_json_consumer('notify_tornado', process_notification)
                 queue_client.register_json_consumer('tornado_return', respond_send_message)
+                queue_client.register_json_consumer('events_to_tornado', process_events_response)
+                queue_client.register_json_consumer('tornado_to_events', process_events_request)
 
             try:
                 urls = (r"/notify_tornado",

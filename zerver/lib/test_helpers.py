@@ -160,6 +160,7 @@ class DummyTornadoRequest(object):
     def __init__(self):
         self.connection = DummyObject()
         self.connection.stream = DummyStream()
+        self._log_data = {}
 
 class DummyHandler(object):
     def __init__(self, assert_callback):

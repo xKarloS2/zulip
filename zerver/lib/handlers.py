@@ -20,7 +20,7 @@ def clear_handler_by_id(handler_id):
 def handler_stats_string():
     return "%s handlers, latest ID %s" % (len(handlers), current_handler_id)
 
-def finish_handler(handler_id, event_queue_id, contents, apply_markdown):
+def finish_handler(handler_id, event_queue_id, response, apply_markdown):
     err_msg = "Got error finishing handler for queue %s" % (event_queue_id,)
     try:
         # We call async_request_restart here in case we are
@@ -29,11 +29,7 @@ def finish_handler(handler_id, event_queue_id, contents, apply_markdown):
         handler = get_handler_by_id(handler_id)
         request = handler._request
         async_request_restart(request)
-        request._log_data['extra'] = "[%s/1]" % (event_queue_id,)
-        handler.zulip_finish(dict(result='success', msg='',
-                                  events=contents,
-                                  queue_id=event_queue_id),
-                             request, apply_markdown=apply_markdown)
+        handler.zulip_finish(response, request, apply_markdown)
     except IOError as e:
         if e.message != 'Stream is closed':
             logging.exception(err_msg)
@@ -42,3 +38,17 @@ def finish_handler(handler_id, event_queue_id, contents, apply_markdown):
             logging.exception(err_msg)
     except Exception:
         logging.exception(err_msg)
+
+def process_events_response(response):
+    try:
+        handler = get_handler_by_id(response["handler_id"])
+        request = handler._request
+        if "extra_log_data" in response:
+            request._log_data['extra'] = response["extra_log_data"]
+
+        finish_handler(response["handler_id"], response["queue_id"],
+                       response["response"], response["apply_markdown"])
+        return response["response"]
+    except Exception:
+        logging.exception("Error processing event")
+        logging.error("Response was " + str(response))

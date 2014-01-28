@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from zerver.models import get_client
 
@@ -7,12 +8,13 @@ from zerver.decorator import asynchronous, \
     authenticated_json_post_view, internal_notify_view, RespondAsynchronously, \
     has_request_variables, REQ
 
-from zerver.lib.response import json_success, json_error
+from zerver.lib.response import json_success, json_error, json_response
 from zerver.lib.validator import check_bool, check_list, check_string
 from zerver.lib.event_queue import allocate_client_descriptor, get_client_descriptor, \
-    process_notification, fetch_events
+    process_notification, process_events_request
 from zerver.lib.handlers import allocate_handler_id
 from zerver.lib.narrow import check_supported_events_narrow_filter
+from zerver.lib.queue import queue_json_publish
 
 import time
 import ujson
@@ -57,6 +59,7 @@ def get_events_backend(request, user_profile, handler,
         user_client = request.client
 
     events_query = dict(
+        type = "get_events",
         user_profile_id = user_profile.id,
         user_profile_email = user_profile.email,
         queue_id = queue_id,
@@ -82,13 +85,8 @@ def get_events_backend(request, user_profile, handler,
             last_connection_time = time.time(),
             narrow = narrow)
 
-    result = fetch_events(events_query)
-    if "extra_log_data" in result:
-        request._log_data['extra'] = result["extra_log_data"]
-
-    if result["type"] == "async":
-        handler._request = request
-        return RespondAsynchronously
-    if result["type"] == "error":
-        return json_error(result["message"])
-    return json_success(result["response"])
+    handler._request = request
+    result = queue_json_publish('tornado_to_events', events_query, process_events_request)
+    if not settings.RUNNING_INSIDE_TORNADO:
+        return json_response(data=result)
+    return RespondAsynchronously

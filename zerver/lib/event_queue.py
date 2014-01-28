@@ -21,7 +21,7 @@ from zerver.lib.cache import cache_get_many, message_cache_key, \
     user_profile_by_id_cache_key, cache_save_user_profile
 from zerver.lib.cache_helpers import cache_with_key
 from zerver.lib.handlers import clear_handler_by_id, get_handler_by_id, \
-    finish_handler, handler_stats_string
+    process_events_response, handler_stats_string
 from zerver.lib.utils import statsd
 from zerver.middleware import async_request_restart
 from zerver.lib.narrow import build_narrow_filter
@@ -125,8 +125,7 @@ class ClientDescriptor(object):
         if self.current_handler_id is not None:
             err_msg = "Got error finishing handler for queue %s" % (self.event_queue.id,)
             try:
-                finish_handler(self.current_handler_id, self.event_queue.id,
-                               self.event_queue.contents(), self.apply_markdown)
+                success_events_response(self, self.current_handler_id)
             except Exception:
                 logging.exception(err_msg)
             finally:
@@ -447,7 +446,36 @@ def setup_event_queue():
 
     send_restart_events(immediate=settings.DEVELOPMENT)
 
-def fetch_events(query):
+def process_events_request(request):
+    if request['type'] == "get_events":
+        try:
+            return process_get_events_request(request)
+        except Exception:
+            logging.exception("Error processing event")
+
+def send_events_response(response):
+    return queue_json_publish("events_to_tornado", response, process_events_response)
+
+def success_events_response(client, handler_id, orig_queue_id=None,
+                            was_connected=False):
+    extra_log_data = ""
+    response = dict(events=client.event_queue.contents(),
+                    result="success", msg="",
+                    handler_id=handler_id)
+    if orig_queue_id is None:
+        response['queue_id'] = client.event_queue.id
+        extra_log_data = "[%s/%s]" % (client.event_queue.id,
+                                      len(response["events"]))
+    if was_connected:
+        extra_log_data += " [was connected]"
+    return send_events_response(dict(type="response",
+                                     queue_id=client.event_queue.id,
+                                     handler_id=handler_id,
+                                     apply_markdown=client.apply_markdown,
+                                     response=response,
+                                     extra_log_data=extra_log_data))
+
+def process_get_events_request(query):
     queue_id = query["queue_id"]
     dont_block = query["dont_block"]
     last_event_id = query["last_event_id"]
@@ -460,7 +488,6 @@ def fetch_events(query):
     try:
         was_connected = False
         orig_queue_id = queue_id
-        extra_log_data = ""
         if queue_id is None:
             if dont_block:
                 client = allocate_client_descriptor(new_queue_data)
@@ -479,14 +506,9 @@ def fetch_events(query):
             was_connected = client.finish_current_handler()
 
         if not client.event_queue.empty() or dont_block:
-            response = dict(events=client.event_queue.contents(),
-                            handler_id=handler_id)
-            if orig_queue_id is None:
-                response['queue_id'] = queue_id
-            extra_log_data = "[%s/%s]" % (queue_id, len(response["events"]))
-            if was_connected:
-                extra_log_data += " [was connected]"
-            return dict(type="response", response=response, extra_log_data=extra_log_data)
+            return success_events_response(client, handler_id,
+                                           orig_queue_id=orig_queue_id,
+                                           was_connected=was_connected)
 
         # After this point, dont_block=False, the queue is empty, and we
         # have a pre-existing queue, so we wait for new events.
@@ -495,12 +517,14 @@ def fetch_events(query):
                                                                         client_type_name))
     except JsonableError as e:
         if hasattr(e, 'to_json_error_msg') and callable(e.to_json_error_msg):
-            return dict(type="error", handler_id=handler_id,
-                        message=e.to_json_error_msg())
+            return send_events_response(dict(type="error",
+                                             queue_id=queue_id,
+                                             handler_id=handler_id,
+                                             apply_markdown=True,
+                                             response=dict(result="error",
+                                                           msg=e.to_json_error_msg())))
         raise e
-
     client.connect_handler(handler_id, client_type_name)
-    return dict(type="async")
 
 # The following functions are called from Django
 

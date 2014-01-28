@@ -258,5 +258,5 @@ def queue_json_publish(queue_name, event, processor):
         if settings.USING_RABBITMQ:
             get_queue_client().json_publish(queue_name, event)
         else:
-            processor(event)
+            return processor(event)
 
