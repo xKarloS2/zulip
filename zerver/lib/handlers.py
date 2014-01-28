@@ -9,8 +9,8 @@ def get_handler_by_id(handler_id):
 
 def allocate_handler_id(handler):
     global current_handler_id
-    handlers[current_handler_id] = handler
     handler.handler_id = current_handler_id
+    handlers[current_handler_id] = handler
     current_handler_id += 1
     return handler.handler_id
 
@@ -19,6 +19,13 @@ def clear_handler_by_id(handler_id):
 
 def handler_stats_string():
     return "%s handlers, latest ID %s" % (len(handlers), current_handler_id)
+
+known_queue_ids = {}
+def record_queue_id(queue_id, user_profile_id):
+    known_queue_ids[queue_id] = user_profile_id
+
+def fetch_queue_id(queue_id):
+    return known_queue_ids.get(queue_id)
 
 def finish_handler(handler_id, event_queue_id, response, apply_markdown):
     err_msg = "Got error finishing handler for queue %s" % (event_queue_id,)
@@ -46,6 +53,9 @@ def process_events_response(response):
         if "extra_log_data" in response:
             request._log_data['extra'] = response["extra_log_data"]
 
+        if response["response"].get("queue_id"):
+            # If we are returning to the user a new queue we allocated
+            record_queue_id(response["queue_id"], request.user.id)
         finish_handler(response["handler_id"], response["queue_id"],
                        response["response"], response["apply_markdown"])
         return response["response"]

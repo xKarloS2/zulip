@@ -114,10 +114,6 @@ class ClientDescriptor(object):
         self._timeout_handle = None
 
     def add_event(self, event):
-        if self.current_handler_id is not None:
-            handler = get_handler_by_id(self.current_handler_id)
-            async_request_restart(handler._request)
-
         self.event_queue.push(event)
         self.finish_current_handler()
 

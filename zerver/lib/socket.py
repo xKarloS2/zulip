@@ -17,6 +17,7 @@ from zerver.lib.actions import check_send_message, extract_recipients
 from zerver.decorator import JsonableError
 from zerver.lib.utils import statsd
 from zerver.lib.event_queue import get_client_descriptor
+from zerver.lib.handlers import fetch_queue_id
 from zerver.middleware import record_request_start_data, record_request_stop_data, \
     record_request_restart_data, write_log_line, format_timedelta
 from zerver.lib.redis_utils import get_redis_client
@@ -119,11 +120,11 @@ class SocketConnection(sockjs.tornado.SockJSConnection):
             raise SocketAuthError("Missing 'queue_id' argument")
 
         queue_id = msg['request']['queue_id']
-        client = get_client_descriptor(queue_id)
-        if client is None:
+        queue_user_profile_id = fetch_queue_id(queue_id)
+        if queue_user_profile_id is None:
             raise SocketAuthError('Bad event queue id: %s' % (queue_id,))
 
-        if user_profile.id != client.user_profile_id:
+        if user_profile.id != queue_user_profile_id:
             raise SocketAuthError("You are not the owner of the queue with id '%s'" % (queue_id,))
 
         self.authenticated = True

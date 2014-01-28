@@ -20,9 +20,7 @@ import logging
 from tornado import ioloop
 from zerver.lib.debug import interactive_debug_listen
 from zerver.lib.response import json_response
-from zerver.lib.event_queue import process_notification, missedmessage_hook
-from zerver.lib.event_queue import setup_event_queue, add_client_gc_hook, \
-    get_descriptor_by_handler_id, clear_handler_by_id
+from zerver.lib.event_queue import get_descriptor_by_handler_id, clear_handler_by_id
 from zerver.lib.handlers import allocate_handler_id, process_events_response
 from zerver.lib.queue import setup_tornado_rabbitmq
 from zerver.lib.socket import get_sockjs_router, respond_send_message
@@ -96,10 +94,8 @@ class Command(BaseCommand):
             if settings.USING_RABBITMQ:
                 queue_client = get_queue_client()
                 # Process notifications received via RabbitMQ
-                queue_client.register_json_consumer('notify_tornado', process_notification)
                 queue_client.register_json_consumer('tornado_return', respond_send_message)
                 queue_client.register_json_consumer('events_to_tornado', process_events_response)
-                queue_client.register_json_consumer('tornado_to_events', process_events_request)
 
             try:
                 urls = (r"/notify_tornado",
@@ -124,8 +120,6 @@ class Command(BaseCommand):
                 if django.conf.settings.DEBUG:
                     ioloop.IOLoop.instance().set_blocking_log_threshold(5)
 
-                setup_event_queue()
-                add_client_gc_hook(missedmessage_hook)
                 setup_tornado_rabbitmq()
                 ioloop.IOLoop.instance().start()
             except KeyboardInterrupt:
