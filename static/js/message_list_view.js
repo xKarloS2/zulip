@@ -85,6 +85,7 @@ function populate_group_from_message_container(group, message_container) {
     group.always_visible_topic_edit = message_container.msg.always_visible_topic_edit;
     group.on_hover_topic_edit = message_container.msg.on_hover_topic_edit;
     group.subject_links = message_container.msg.subject_links;
+    group.date = (timerender.render_date(new XDate(message_container.msg.timestamp * 1000)))[0].outerHTML;
 }
 
 MessageListView.prototype = {

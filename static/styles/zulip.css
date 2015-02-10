@@ -865,6 +865,15 @@ td.pointer {
     line-height: 17px;
 }
 
+.recipient_row_date {
+    display: inline-block;
+    font-weight: normal;
+    padding: 3px 6px 2px 12px;
+    height: 17px;
+    line-height: 17px;
+    float: right;
+}
+
 .summary_row .message_header{
     padding: 5px 0px 4px 5px;
 }
