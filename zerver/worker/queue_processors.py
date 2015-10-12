@@ -177,7 +177,7 @@ class MissedMessageWorker(QueueProcessingWorker):
             reset_queries()
             # Aggregate all messages received every 2 minutes to let someone finish sending a batch
             # of messages
-            time.sleep(2 * 60)
+            time.sleep(0.2)
 
 @assign_queue('missedmessage_mobile_notifications')
 class PushNotificationsWorker(QueueProcessingWorker):
