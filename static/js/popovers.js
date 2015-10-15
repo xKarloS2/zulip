@@ -4,6 +4,7 @@ var exports = {};
 
 var current_actions_popover_elem;
 var current_message_info_popover_elem;
+var emoji_map_is_open = false;
 
 var userlist_placement = "right";
 
@@ -185,6 +186,14 @@ function topic_sidebar_popped() {
     return current_topic_sidebar_elem !== undefined;
 }
 
+exports.hide_emoji_map_popover = function () {
+    if (emoji_map_is_open) {
+        $('.emoji_popover').css('display', 'none');
+        // $('.emoji_popover.inner').remove();
+        emoji_map_is_open = false;
+    }
+};
+
 exports.hide_stream_sidebar_popover = function () {
     if (stream_sidebar_popped()) {
         $(current_stream_sidebar_elem).popover("destroy");
@@ -213,6 +222,19 @@ exports.hide_user_sidebar_popover = function () {
     }
 };
 
+function render_emoji_popover() {
+    var content = templates.render('emoji_popover_content', {
+        emoji_list: emoji.emojis_by_name
+    });
+
+    $('.emoji_popover').html(content);
+    $('.emoji_popover').css('display', 'inline-block');
+    $("#new_message_content").focus();
+
+    emoji_map_is_open = true;
+
+}
+
 exports.register_click_handlers = function () {
     $("#main_div").on("click", ".actions_hover", function (e) {
         var row = $(this).closest(".message_row");
@@ -224,6 +246,31 @@ exports.register_click_handlers = function () {
         var row = $(this).closest(".message_row");
         e.stopPropagation();
         show_message_info_popover(this, rows.id(row));
+    });
+
+    $("body").on("click", ".emoji_popover", function (e) {
+        e.stopPropagation();
+    });
+
+    $("body").on("click", ".emoji_popover .emoji", function (e) {
+        var emoji_choice = $(e.target).attr("title");
+        var textarea = $("#new_message_content");
+        textarea.val(textarea.val() + " " + emoji_choice);
+        textarea.focus();
+        e.stopPropagation();
+    });
+
+    $("#compose").on("click", "#emoji_map", function (e) {
+        if (emoji_map_is_open) {
+            // If the popover is already shown, clicking again should toggle it.
+            popovers.hide_emoji_map_popover();
+            e.stopPropagation();
+            return;
+        }
+        popovers.hide_all();
+
+        render_emoji_popover();
+        e.stopPropagation();
     });
 
     $('body').on('click', '.user_popover .narrow_to_private_messages', function (e) {
@@ -570,7 +617,7 @@ exports.register_click_handlers = function () {
 
 exports.any_active = function () {
     // True if any popover (that this module manages) is currently shown.
-    return popovers.actions_popped() || user_sidebar_popped() || stream_sidebar_popped() || topic_sidebar_popped() || message_info_popped();
+    return popovers.actions_popped() || user_sidebar_popped() || stream_sidebar_popped() || topic_sidebar_popped() || message_info_popped() || emoji_map_is_open;
 };
 
 exports.hide_all = function () {
