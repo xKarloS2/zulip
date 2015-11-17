@@ -68,6 +68,15 @@ function populate_streams (streams_data) {
         streams_table.append(templates.render("admin_streams_list", {stream: stream}));
     });
     loading.destroy_indicator($('#admin_page_streams_loading_indicator'));
+
+    var default_streams_table = $("#admin_default_streams_table").expectOne();
+    default_streams_table.find("tr.stream_row").remove();
+    _.each(streams_data.streams, function (stream) {
+        if (stream.is_default) {
+            default_streams_table.append(templates.render("admin_default_streams_list", {stream: stream}));
+        }
+    });
+    loading.destroy_indicator($('#admin_page_default_streams_loading_indicator'));
 }
 
 exports.setup_page = function () {
@@ -103,7 +112,7 @@ exports.setup_page = function () {
 
     // Populate streams table
     channel.get({
-        url:      '/json/streams?include_public=true&include_subscribed=true',
+        url:      '/json/streams?include_public=true&include_subscribed=true&include_default=true',
         timeout:  10*1000,
         idempotent: true,
         success: populate_streams,
@@ -139,6 +148,38 @@ exports.setup_page = function () {
 
         $("#deactivation_stream_modal .stream_name").text(stream_name);
         $("#deactivation_stream_modal").modal("show");
+    });
+
+    $(".admin_default_stream_table").on("click", ".remove-default-stream", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        $(".active_stream_row").removeClass("active_stream_row");
+        var row = $(e.target).closest(".stream_row");
+        row.addClass("active_stream_row");
+
+        var stream_name = row.find('.stream_name').text();
+        var data = {
+            is_default: JSON.stringify(false)
+        };
+
+        channel.patch({
+            url: '/json/streams/' + encodeURIComponent($(".active_stream_row").find('.stream_name').text()),
+            data: data,
+            error: function (xhr, error_type) {
+                if (xhr.status.toString().charAt(0) === "4") {
+                    $(".active_stream_row button").closest("td").html(
+                        $("<p>").addClass("text-error").text($.parseJSON(xhr.responseText).msg)
+                    );
+                } else {
+                     $(".active_stream_row button").text("Failed!");
+                }
+            },
+            success: function () {
+                var row = $(".active_stream_row");
+                row.remove();
+            }
+        });
     });
 
     $(".admin_bot_table").on("click", ".deactivate", function (e) {
