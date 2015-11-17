@@ -23,3 +23,7 @@ DEFAULT_FROM_EMAIL = "Zulip <zulip@travis.example.com>"
 EOF
 
 su zulip -c /home/zulip/deployments/current/scripts/setup/initialize-database
+
+# Now test the upgrade process runs successfully
+cp zulip-server-travis.tar.gz /tmp/
+su zulip -c /home/zulip/deployments/current/scripts/upgrade-zulip /tmp/zulip-server-travis.tar.gz
