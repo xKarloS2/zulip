@@ -114,6 +114,11 @@ class Realm(models.Model):
     # structure.
     name = models.CharField(max_length=40, null=True)
     restricted_to_domain = models.BooleanField(default=True)
+    invite_required = models.BooleanField(default=False)
+    invite_by_admins_only = models.BooleanField(default=False)
+    mandatory_topics = models.BooleanField(default=False)
+    show_digest_email = models.BooleanField(default=True)
+    name_changes_disabled = models.BooleanField(default=False)
 
     date_created = models.DateTimeField(default=timezone.now)
     notifications_stream = models.ForeignKey('Stream', related_name='+', null=True, blank=True)
@@ -152,6 +157,7 @@ class Realm(models.Model):
     class Meta(object):
         permissions = (
             ('administer', "Administer a realm"),
+            ('api_super_user', "Can send messages as other users for mirroring"),
         )
 
 post_save.connect(flush_realm, sender=Realm)
@@ -292,6 +298,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     ### Notifications settings. ###
 
+    # Stream notifications.
+    enable_stream_desktop_notifications = models.BooleanField(default=False)
+    enable_stream_sounds = models.BooleanField(default=False)
+
     # PM + @-mention notifications.
     enable_desktop_notifications = models.BooleanField(default=True)
     enable_sounds = models.BooleanField(default=True)
@@ -309,9 +319,18 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     last_reminder = models.DateTimeField(default=timezone.now, null=True)
     rate_limits = models.CharField(default="", max_length=100) # comma-separated list of range:max pairs
 
+    # Default streams
+    default_sending_stream = models.ForeignKey('zerver.Stream', null=True, related_name='+')
+    default_events_register_stream = models.ForeignKey('zerver.Stream', null=True, related_name='+')
+    default_all_public_streams = models.BooleanField(default=False)
+
     # UI vars
     enter_sends = models.NullBooleanField(default=True)
     autoscroll_forever = models.BooleanField(default=False)
+    left_side_userlist = models.BooleanField(default=False)
+
+    # display settings
+    twenty_four_hour_time = models.BooleanField(default=False)
 
     # Hours to wait before sending another email to a user
     EMAIL_REMINDER_WAITPERIOD = 24
@@ -448,6 +467,9 @@ class PushDeviceToken(models.Model):
 
     # The user who's device this is
     user = models.ForeignKey(UserProfile, db_index=True)
+
+    # [optional] Contains the app id of the device if it is an iOS device
+    ios_app_id = models.TextField(null=True)
 
 class MitUser(models.Model):
     email = models.EmailField(unique=True)
@@ -651,6 +673,9 @@ class Message(models.Model):
     sending_client = models.ForeignKey(Client)
     last_edit_time = models.DateTimeField(null=True)
     edit_history = models.TextField(null=True)
+    has_attachment = models.BooleanField(default=False, db_index=True)
+    has_image = models.BooleanField(default=False, db_index=True)
+    has_link = models.BooleanField(default=False, db_index=True)
 
 
     def __repr__(self):
@@ -1023,6 +1048,9 @@ class Subscription(models.Model):
 
     DEFAULT_STREAM_COLOR = "#c2c2c2"
     color = models.CharField(max_length=10, default=DEFAULT_STREAM_COLOR)
+
+    desktop_notifications = models.BooleanField(default=True)
+    audible_notifications = models.BooleanField(default=True)
 
     # Combination desktop + audible notifications superseded by the
     # above.
