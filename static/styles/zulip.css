@@ -320,6 +320,9 @@ a:hover code {
     display: inline;
 }
 
+#starred_streams_header {
+    visibility: hidden;
+}
 
 #streams_list:hover .streams_inline_cog {
    visibility: visible;

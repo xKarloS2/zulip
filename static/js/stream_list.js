@@ -26,13 +26,6 @@ exports.build_stream_list = function () {
     var parent = $('#stream_filters');
     var elems = [];
 
-    function add_label(label_text) {
-        var label = $('<li class = "stream-filters-label">' + label_text
-            + '<a href=""><i class="streams_inline_cog icon-vector-cog" data-toggle="tooltip"'
-            + 'title="Subscribe, add, or configure streams"></i></a></li>');
-        elems.push(label.get(0));
-    }
-
     function add_sidebar_li(stream) {
         var li = $(stream_data.get_sub(stream).sidebar_li);
         if (sort_recent) {
@@ -78,9 +71,10 @@ exports.build_stream_list = function () {
     previous_sort_order = streams;
     parent.empty();
     if (starred_streams.length > 0) {
-        add_label('STARRED');
+        $('#starred_streams_header').show();
         _.each(starred_streams, add_sidebar_li);
-        add_label('STREAMS');
+    } else {
+        $('#starred_streams_header').hide();
     }
     _.each(unstarred_streams, add_sidebar_li);
 
