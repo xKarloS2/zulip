@@ -50,6 +50,9 @@ class RegistrationForm(forms.Form):
     # actually required for a realm
     password = forms.CharField(widget=forms.PasswordInput, max_length=100,
                                required=False)
+    realm_name = forms.CharField(max_length=100, required=False)
+    if settings.REALMS_HAVE_SUBDOMAINS:
+        realm_url = forms.CharField(max_length=30, required=False)
     if not settings.VOYAGER:
         terms = forms.BooleanField(required=True)
 

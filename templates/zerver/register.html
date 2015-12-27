@@ -46,6 +46,39 @@ Form is validated both client-side using jquery-validate (see signup.js) and ser
             {% endif %}
         </div>
     </div>
+
+    {% if creating_new_team %}
+    <div class="control-group">
+        <label for="id_team_name" class="control-label">{% trans 'Team name' %}</label>
+        <div class="controls">
+          <input id="id_team_name" class="required" type="text"
+                placeholder="E.g. Acme"
+                name="team_name" maxlength="100" />
+                {% if form.team_name.errors %}
+                    {% for error in form.team_name.errors %}
+                        <div class="alert alert-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+          <br /><span class="small">(You can change this later on the admin page.)</span>
+        </div>
+    </div>
+    {% if realms_have_subdomains %}
+    <div class="control-group">
+        <label for="id_team_url" class="control-label">{% trans 'Zulip URL' %}</label>
+        <div class="controls">
+          https://<input id="id_team_url" class="required" type="text"
+                name="team_url" maxlength="30"/>.zulip.com
+                {% if form.team_name.errors %}
+                    {% for error in form.team_url.errors %}
+                        <div class="alert alert-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+          <br /><span class="small">The address you and your team will use to login</span>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
     {% if password_auth_enabled %}
         <div class="control-group">
             <label for="id_password" class="control-label">{{ _('Password') }}</label>

@@ -230,6 +230,8 @@ def accounts_register(request):
              # password_auth_enabled is normally set via our context processor,
              # but for the registration form, there is no logged in user yet, so
              # we have to set it here.
+             'creating_new_team': (realm is None),
+             'realms_have_subdomains': settings.REALMS_HAVE_SUBDOMAINS,
              'password_auth_enabled': password_auth_enabled(realm),
             },
         request=request)
@@ -650,6 +652,12 @@ def send_registration_completion_email(email, request):
                'voyager': settings.VOYAGER}
     Confirmation.objects.send_confirmation(prereg_user, email,
                                            additional_context=context)
+
+def create_realm(request):
+    form = create_homepage_form(request)
+    return render_to_response('zerver/create_realm.html',
+                              {'form': form, 'current_url': request.get_full_path},
+                              context_instance=RequestContext(request))
 
 def accounts_home(request):
     if request.method == 'POST':

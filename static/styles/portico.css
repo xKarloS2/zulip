@@ -403,6 +403,14 @@ a.bottom-signup-button {
     box-shadow: 0px 0px 4px rgba(0,0,0,0.4);
 }
 
+.small {
+    font-size: 80%;
+}
+
+.tiny {
+    font-size: 60%;
+}
+
 .login-page,
 .apps-page,
 .register-page,
@@ -677,6 +685,10 @@ a.bottom-signup-button {
 .login-form #id_username,
 .login-form #id_password {
     width: 100%;
+}
+
+#id_team_url {
+    width: 120px;
 }
 
 .login-form .control-group, .register-form .control-group {
