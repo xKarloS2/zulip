@@ -13,8 +13,17 @@ def get_ftype(filepath):
         # No extension; look at the first line
         with open(filepath) as f:
             first_line = f.readline()
-            if re.match(r'^#!.*\bpython', first_line):
-                exn = '.py'
+            if re.search(r'^#!.*\bpython', first_line):
+                return '.py'
+            elif re.search(r'^#!.*sh', first_line):
+                return '.sh'
+            elif re.search(r'^#!.*\bperl', first_line):
+                return '.pl'
+            elif re.search(r'^#!', first_line):
+                print('Error: Unknown shebang in file "%s":\n%s' % (filepath, first_line), file=sys.stderr)
+                return ''
+            else:
+                return ''
 
     return exn
 
@@ -55,7 +64,5 @@ def list_files(args, modified, exclude_files=[], exclude_trees=[]):
             filetype = ''
 
         by_lang[filetype].append(filepath)
-
-    by_lang['.sh'] = [_f for _f in map(str.strip, subprocess.check_output("grep --files-with-matches '#!.*\(ba\)\?sh' $(git ls-tree --name-only -r HEAD scripts/ tools/ bin/ | grep -v [.])", shell=True).split('\n')) if _f]
 
     return by_lang
