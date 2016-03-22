@@ -8,8 +8,8 @@ import subprocess
 import sys
 
 def get_ftype(fpath):
-    _, exn = path.splitext(fpath)
-    if not exn:
+    _, ext = path.splitext(fpath)
+    if not ext:
         # No extension; look at the first line
         with open(fpath) as f:
             first_line = f.readline()
@@ -25,7 +25,7 @@ def get_ftype(fpath):
             else:
                 return ''
 
-    return exn
+    return ext
 
 def list_files(args, modified, exclude_files=[], exclude_trees=[]):
     if modified:
