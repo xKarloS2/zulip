@@ -7,9 +7,11 @@ import re
 import subprocess
 import sys
 
-def get_ftype(fpath):
-    _, ext = path.splitext(fpath)
-    if not ext:
+def get_ftype(fpath, use_shebang):
+    ext = path.splitext(fpath)[1]
+    if ext:
+        return ext
+    elif use_shebang:
         # No extension; look at the first line
         with open(fpath) as f:
             first_line = f.readline()
@@ -27,7 +29,7 @@ def get_ftype(fpath):
 
     return ext
 
-def list_files(args, modified, exclude_files=[], exclude_trees=[]):
+def list_files(args, modified, exclude_files=[], exclude_trees=[], use_shebang=True):
     if modified:
         # If the user specifies, use `git ls-files -m` to only check modified, non-staged
         # files in the current checkout.  This makes things fun faster.
@@ -56,7 +58,7 @@ def list_files(args, modified, exclude_files=[], exclude_trees=[]):
             continue
 
         try:
-            filetype = get_ftype(fpath)
+            filetype = get_ftype(fpath, use_shebang)
         except (OSError, UnicodeDecodeError) as e:
             etype = e.__class__.__name__
             print('Error: %s while determining type of file "%s":' % (etype, fpath), file=sys.stderr)
