@@ -7,11 +7,11 @@ import re
 import subprocess
 import sys
 
-def get_ftype(filepath):
-    _, exn = path.splitext(filepath)
+def get_ftype(fpath):
+    _, exn = path.splitext(fpath)
     if not exn:
         # No extension; look at the first line
-        with open(filepath) as f:
+        with open(fpath) as f:
             first_line = f.readline()
             if re.search(r'^#!.*\bpython', first_line):
                 return '.py'
@@ -20,7 +20,7 @@ def get_ftype(filepath):
             elif re.search(r'^#!.*\bperl', first_line):
                 return '.pl'
             elif re.search(r'^#!', first_line):
-                print('Error: Unknown shebang in file "%s":\n%s' % (filepath, first_line), file=sys.stderr)
+                print('Error: Unknown shebang in file "%s":\n%s' % (fpath, first_line), file=sys.stderr)
                 return ''
             else:
                 return ''
@@ -49,20 +49,20 @@ def list_files(args, modified, exclude_files=[], exclude_trees=[]):
     # Categorize by language all files we want to check
     by_lang   = defaultdict(list)
 
-    for filepath in files:
-        if (not filepath or not path.isfile(filepath)
-            or (filepath in exclude_files)
-            or any(filepath.startswith(d+'/') for d in exclude_trees)):
+    for fpath in files:
+        if (not fpath or not path.isfile(fpath)
+            or (fpath in exclude_files)
+            or any(fpath.startswith(d+'/') for d in exclude_trees)):
             continue
 
         try:
-            filetype = get_ftype(filepath)
+            filetype = get_ftype(fpath)
         except (OSError, UnicodeDecodeError) as e:
             etype = e.__class__.__name__
-            print('Error: %s while determining type of file "%s":' % (etype, filepath), file=sys.stderr)
+            print('Error: %s while determining type of file "%s":' % (etype, fpath), file=sys.stderr)
             print(e, file=sys.stderr)
             filetype = ''
 
-        by_lang[filetype].append(filepath)
+        by_lang[filetype].append(fpath)
 
     return by_lang
