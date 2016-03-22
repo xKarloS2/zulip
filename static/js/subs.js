@@ -554,7 +554,6 @@ function ajaxSubscribe(stream) {
         data: {"subscriptions": JSON.stringify([{"name": stream}]) },
         success: function (resp, statusText, xhr, form) {
             $("#create_stream_name").val("");
-
             var res = $.parseJSON(xhr.responseText);
             if (!$.isEmptyObject(res.already_subscribed)) {
                 // Display the canonical stream capitalization.
@@ -802,6 +801,25 @@ $(function () {
         } else {
             ajaxSubscribe(stream_name);
         }
+    });
+
+    $('.empty_feed_sub_unsub').click(function (e) {
+        e.preventDefault();
+
+        $('#subscription-status').hide();
+        var stream_name = narrow.stream();
+        if (stream_name === undefined) {
+            return;
+        }
+        var sub = stream_data.get_sub(stream_name);
+
+        if (sub.subscribed) {
+            ajaxUnsubscribe(stream_name);
+        } else {
+            ajaxSubscribe(stream_name);
+        }
+        $('.empty_feed_notice').hide();
+        $('#empty_narrow_message').show();
     });
 
     $("#subscriptions_table").on("show", ".subscription_settings", function (e) {
