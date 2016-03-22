@@ -5,6 +5,18 @@ from collections import defaultdict
 from os          import path
 import re
 import subprocess
+import sys
+
+def get_ftype(filepath):
+    _, exn = path.splitext(filepath)
+    if not exn:
+        # No extension; look at the first line
+        with open(filepath) as f:
+            first_line = f.readline()
+            if re.match(r'^#!.*\bpython', first_line):
+                exn = '.py'
+
+    return exn
 
 def list_files(args, modified, exclude_files=[], exclude_trees=[]):
     if modified:
@@ -34,14 +46,15 @@ def list_files(args, modified, exclude_files=[], exclude_trees=[]):
             or any(filepath.startswith(d+'/') for d in exclude_trees)):
             continue
 
-        _, exn = path.splitext(filepath)
-        if not exn:
-            # No extension; look at the first line
-            with open(filepath) as f:
-                if re.match(r'^#!.*\bpython', f.readline()):
-                    exn = '.py'
+        try:
+            filetype = get_ftype(filepath)
+        except (OSError, UnicodeDecodeError) as e:
+            etype = e.__class__.__name__
+            print('Error: %s while determining type of file "%s":' % (etype, filepath), file=sys.stderr)
+            print(e, file=sys.stderr)
+            filetype = ''
 
-        by_lang[exn].append(filepath)
+        by_lang[filetype].append(filepath)
 
     by_lang['.sh'] = [_f for _f in map(str.strip, subprocess.check_output("grep --files-with-matches '#!.*\(ba\)\?sh' $(git ls-tree --name-only -r HEAD scripts/ tools/ bin/ | grep -v [.])", shell=True).split('\n')) if _f]
 
