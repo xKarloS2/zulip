@@ -95,4 +95,6 @@ Oops, the frontend tests failed. Tips for debugging:
  * Try remote debugging the test web browser as described in docs/testing.rst
 """, file=sys.stderr)
 
+    subprocess.call(["cat", "frontend_tests/casper_tests/server.log"])
+
 sys.exit(ret)
