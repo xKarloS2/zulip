@@ -118,7 +118,12 @@ class Command(BaseCommand):
                 http_server = httpserver.HTTPServer(application,
                                                     xheaders=xheaders,
                                                     no_keep_alive=no_keep_alive)
-                http_server.listen(int(port), address=addr)
+                try:
+                    http_server.listen(int(port), address=addr)
+                except Exception:
+                    logging.exception("Traceback trying to listen")
+                    import subprocess
+                    print(subprocess.check_output(["netstat", "-nlp"]))
 
                 if django.conf.settings.DEBUG:
                     ioloop.IOLoop.instance().set_blocking_log_threshold(5)
