@@ -16,6 +16,10 @@ if "TORNADO_SERVER" in os.environ:
     TORNADO_SERVER = os.environ["TORNADO_SERVER"]
 else:
     TORNADO_SERVER = None
+    # Don't use rabbitmq from the test suite -- the user_profile_ids for
+    # any generated queue elements won't match those being used by the
+    # real app.
+    USING_RABBITMQ = False
 
 # Decrease the get_updates timeout to 1 second.
 # This allows CasperJS to proceed quickly to the next test step.
@@ -32,10 +36,6 @@ AUTHENTICATION_BACKENDS += ('zproject.backends.EmailAuthBackend',)
 
 TEST_SUITE = True
 RATE_LIMITING = False
-# Don't use rabbitmq from the test suite -- the user_profile_ids for
-# any generated queue elements won't match those being used by the
-# real app.
-USING_RABBITMQ = False
 
 # Disable the tutorial because it confuses the client tests.
 TUTORIAL_ENABLED = False
