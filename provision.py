@@ -85,9 +85,11 @@ UBUNTU_COMMON_APT_DEPENDENCIES = [
 APT_DEPENDENCIES = {
     "trusty": UBUNTU_COMMON_APT_DEPENDENCIES + [
         "postgresql-9.3",
+        "postgresql-9.3-pgroonga",
     ],
     "xenial": UBUNTU_COMMON_APT_DEPENDENCIES + [
         "postgresql-9.5",
+        "postgresql-9.5-pgroonga",
     ],
 }
 
@@ -139,6 +141,11 @@ def do_setup_virtualenv(venv_path, requirements_file, virtualenv_args):
     run(["pip", "install", "--no-deps", "--requirement", requirements_file])
 
 def main():
+    run(["sudo", "apt-get", "update"])
+    run(["sudo", "apt-get", "-y", "install", "software-properties-common"])
+    run(["sudo", "add-apt-repository", "-y", "universe"])
+    run(["sudo", "add-apt-repository", "-y", "ppa:groonga/ppa"])
+
     run(["sudo", "apt-get", "update"])
     run(["sudo", "apt-get", "-y", "install"] + APT_DEPENDENCIES[codename])
 
