@@ -24,6 +24,7 @@ Contents:
    translating
    changelog
    roadmap
+   full-text-search
 
 Indices and tables
 ==================
