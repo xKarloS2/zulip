@@ -29,28 +29,38 @@ mkdir -p /etc/zulip
 echo -e "[machine]\npuppet_classes = $PUPPET_CLASSES\ndeploy_type = $DEPLOYMENT_TYPE" > /etc/zulip/zulip.conf
 /root/zulip/scripts/zulip-puppet-apply -f
 
-# These server restarting bits should be moveable into puppet-land, ideally
+# Do an apt upgrade in case Puppet updates to sources.list added new
+# versions of some packages
 apt-get -y upgrade
-if [ -e "/etc/init.d/nginx" ]; then
-    # Check nginx was configured properly now that we've installed it.
-    # Most common failure mode is certs not having been installed.
-    nginx -t
-    service nginx restart
-fi
 
+# Setup /etc/zulip/settings.py and /etc/zulip/zulip-secrets.conf
 /root/zulip/scripts/setup/generate_secrets.py
 cp -a /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py
 ln -nsf /etc/zulip/settings.py /root/zulip/zproject/local_settings.py
 
-if ! rabbitmqctl status >/dev/null; then
-    set +x
-    echo; echo "RabbitMQ seems to not have started properly after the installation process."
-    echo "Often, this can be caused by misconfigured /etc/hosts in virtualized environments"
-    echo "See https://github.com/zulip/zulip/issues/53#issuecomment-143805121"
-    echo "for more information"
-    echo
-    set -x
-    exit 1
+# The below server restarting bits should be moveable into puppet-land, ideally
+
+# Below: Don't restart services in dockervoyager deployment type
+# TODO: The below should ideally be checking PUPPET_CLASSES for things
+# like whether nginx.pp is recursively included
+if [ "$DEPLOYMENT_TYPE" = "voyager" ]; then
+    if [ -e "/etc/init.d/nginx" ]; then
+        # Check nginx was configured properly now that we've installed it.
+        # Most common failure mode is certs not having been installed.
+        nginx -t
+        service nginx restart
+    fi
+
+    if ! rabbitmqctl status >/dev/null; then
+        set +x
+        echo; echo "RabbitMQ seems to not have started properly after the installation process."
+        echo "Often, this can be caused by misconfigured /etc/hosts in virtualized environments"
+        echo "See https://github.com/zulip/zulip/issues/53#issuecomment-143805121"
+        echo "for more information"
+        echo
+        set -x
+        exit 1
+    fi
 fi
 
 /root/zulip/scripts/setup/configure-rabbitmq
