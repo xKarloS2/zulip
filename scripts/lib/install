@@ -61,11 +61,12 @@ if [ "$DEPLOYMENT_TYPE" = "voyager" ]; then
         set -x
         exit 1
     fi
+
+    /root/zulip/scripts/setup/configure-rabbitmq
+    /root/zulip/scripts/setup/postgres-init-db
+else
+    echo; echo "Skipping rabbitmq configure and postgres init, because DEPLOYMENT_TYPE is not 'voyager', is '$DEPLOYMENT_TYPE'."
 fi
-
-/root/zulip/scripts/setup/configure-rabbitmq
-
-/root/zulip/scripts/setup/postgres-init-db
 
 deploy_path=$(/root/zulip/zulip_tools.py make_deploy_path)
 mv /root/zulip "$deploy_path"
