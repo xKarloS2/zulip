@@ -163,6 +163,7 @@ DEFAULT_SETTINGS = {'TWITTER_CONSUMER_KEY': '',
                     'GOOGLE_CLIENT_ID': '',
                     'DBX_APNS_CERT_FILE': None,
                     'EXTRA_INSTALLED_APPS': [],
+                    'USING_PGROONGA': False,
                     }
 
 for setting_name, setting_val in six.iteritems(DEFAULT_SETTINGS):
@@ -343,21 +344,10 @@ elif REMOTE_POSTGRES_HOST != '':
     else:
         DATABASES['default']['OPTIONS']['sslmode'] = 'verify-full'
 
-if 'postgres' in DATABASES['default']['ENGINE']:
-    # Set True if you want to support full text search against all languages
-    # USING_PGROONGA = True
-    USING_PGROONGA = False
-else:
-    USING_PGROONGA = False
-
 if USING_PGROONGA:
     pg_options = '-c search_path=%(SCHEMA)s,zulip,public,pgroonga,pg_catalog' % \
         DATABASES['default']
-    DATABASE_OPTIONS = DATABASES['default']['OPTIONS']
-    if 'options' in DATABASE_OPTIONS:
-        DATABASE_OPTIONS['options'] += ' ' + pg_options
-    else:
-        DATABASE_OPTIONS['options'] = pg_options
+    DATABASES['default']['OPTIONS']['options'] = pg_options
 
 ########################################################################
 # RABBITMQ CONFIGURATION
