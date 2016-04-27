@@ -101,6 +101,10 @@ class NarrowBuilderTest(AuthedTestCase):
         term = dict(operator='search', operand='"french fries"')
         check(term, 'WHERE (lower(content) LIKE lower(:content_1) OR lower(subject) LIKE lower(:subject_1)) AND (search_tsvector @@ plainto_tsquery(:param_2, :param_3))')
 
+        with self.settings(USING_PGROONGA=True):
+            term = dict(operator='search', operand='"french fries"')
+            check(term, 'WHERE (subject @@ :subject_1) OR (rendered_content @@ :rendered_content_1)')
+
         term = dict(operator='has', operand='attachment')
         check(term, 'WHERE has_attachment')
 
