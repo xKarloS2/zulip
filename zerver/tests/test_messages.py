@@ -103,7 +103,7 @@ class NarrowBuilderTest(AuthedTestCase):
 
         with self.settings(USING_PGROONGA=True):
             term = dict(operator='search', operand='"french fries"')
-            check(term, 'WHERE (subject @@ :subject_1) OR (rendered_content @@ :rendered_content_1)')
+            check(term, 'WHERE search_pgroonga @@ :search_pgroonga_1')
 
         term = dict(operator='has', operand='attachment')
         check(term, 'WHERE has_attachment')
