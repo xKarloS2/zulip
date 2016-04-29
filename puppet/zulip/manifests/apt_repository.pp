@@ -9,4 +9,6 @@ class zulip::apt_repository {
     pin         => '995',
     include_src => true,
   }
+
+  apt::ppa {'ppa:groonga/ppa':}
 }

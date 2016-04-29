@@ -7,10 +7,15 @@ class zulip::postgres_appdb_base {
                      "python-psycopg2",
                      # Needed for our full text search system
                      "postgresql-${zulip::base::postgres_version}-tsearch-extras",
+                     # Needed for optional our full text search system
+                     "postgresql-${zulip::base::postgres_version}-pgroonga",
                      ]
   define safepackage ( $ensure = present ) {
     if !defined(Package[$title]) {
-      package { $title: ensure => $ensure }
+      package { $title:
+        ensure => $ensure,
+        require => Class['apt::update'],
+      }
     }
   }
   safepackage { $appdb_packages: ensure => "installed" }
