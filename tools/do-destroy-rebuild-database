@@ -9,7 +9,10 @@ DROP DATABASE IF EXISTS zulip;
 CREATE DATABASE zulip TEMPLATE zulip_base;
 EOF
 
+# To avoid state leaking over, we flush memcached
 sh "$(dirname "$0")/../scripts/setup/flush-memcached"
+# ... and purge everything from the rabbitmq queues
+sudo rabbitmqctl list_queues | tail -n+2 | awk '{print $1}' | xargs -n1 -IQUEUE sudo rabbitmqctl purge_queue QUEUE
 
 python manage.py migrate --noinput
 python manage.py createcachetable third_party_api_results
