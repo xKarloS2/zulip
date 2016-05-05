@@ -756,6 +756,9 @@ def send_message_backend(request, user_profile,
     else:
         sender = user_profile
 
+    if message_type_name == "private":
+        return json_error("Private messages have been disabled by the administrator.")
+
     ret = check_send_message(sender, client, message_type_name, message_to,
                              subject_name, message_content, forged=forged,
                              forged_timestamp = request.POST.get('time'),
