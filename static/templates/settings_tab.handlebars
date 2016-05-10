@@ -4,8 +4,53 @@
 
   <div class="alert" id="settings-status"></div>
 
+  <div id="transfer-settings" class="settings-section">
+    <div class="settings-section-title"><i class="icon-vector-user settings-section-icon"></i>
+      Transferring your account</div>
+      <div class="approved-transfer-settings-form">
+
+        <div class="control-group" id="approved_transfer_container">
+
+        <p>The zulip.com service is going to be shut down on July 31,
+        2016.</p>
+
+        <p>If you want to continue using Zulip, Kandra Labs (founded
+        by Tim Abbott) will continue providing the Zulip service for
+        MIT zephyr.</p>
+
+        {{#if page_params.need_transfer_approval}}
+        <p>If you would like your data migrated to the Kandra Labs
+        service, you need to give Dropbox your permission to do so by
+        clicking the button below.  For more details, refer to your
+        the email you received with the subject:</p>
+
+        <p>
+        &nbsp;&nbsp;&nbsp;[Action required] Transitioning the zulip.com service
+        </p>
+        <p>Please contact support@zulip.com with any questions.</p>
+
+        <div class="control-group">
+          <div class="controls">
+        <button class="btn btn-default btn-success approved_transfer_button">Approve transfer</button>
+          </div>
+        </div>
+        {{/if}}
+        {{#if page_params.have_transfer_approval}}
+        <p>You've approved the transfer of your data to the new Kandra Labs service,
+        so you're all set!  Kandra Labs will notify you with the new URL for Zulip once
+        the transfer has completed.</p>
+
+        <p>Please contact support@zulip.com with any questions.</p>
+        {{/if}}
+
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="account-settings" class="settings-section">
     <div class="settings-section-title"><i class="icon-vector-user settings-section-icon"></i>Your Account</div>
+
     <div class="account-settings-form">
       <form action="/json/settings/change" method="post"
             class="form-horizontal your-account-settings">

@@ -3412,7 +3412,7 @@ div.edit_bot {
     left: 20px;
 }
 
-#settings .settings-section .notification-settings-form,.ui-settings-form,.display-settings-form {
+#settings .settings-section .notification-settings-form,.ui-settings-form,.display-settings-form,.approved-transfer-settings-form {
     width: 400px;
     margin: auto;
 }
@@ -3434,6 +3434,7 @@ div.edit_bot {
 
 #settings .settings-section .notification-settings-form .controls,
 #settings .settings-section .display-settings-form .controls,
+#settings .settings-section .approved-transfer-settings-form .controls,
 #settings .settings-section .ui-settings-form .controls {
     display: inline-block;
     vertical-align: middle;

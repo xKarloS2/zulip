@@ -860,6 +860,13 @@ def home(request):
         page_params["initial_pointer"] = initial_pointer
         page_params["have_initial_messages"] = (initial_pointer != -1)
 
+    if 'approved_transfer' in settings.EXTRA_INSTALLED_APPS and user_profile.realm.domain == "mit.edu":
+        from approved_transfer.models import ApprovedTransfer
+        if ApprovedTransfer.objects.filter(user_profile=user_profile).exists():
+            page_params["have_transfer_approval"] = True
+        else:
+            page_params["need_transfer_approval"] = True
+
     statsd.incr('views.home')
     show_invites = True
 

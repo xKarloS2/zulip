@@ -179,6 +179,17 @@ exports.setup_page = function () {
         $("#api_key_button_box").hide();
     });
 
+    $('.approved_transfer_button').click(function (e) {
+        channel.post({
+            url: '/json/approve_transfer',
+            success: function (data) {
+                page_params.have_transfer_approval = true;
+                page_params.need_transfer_approval = false;
+                exports.setup_page();
+            }
+        })
+    });
+
     $('#pw_change_link').on('click', function (e) {
         e.preventDefault();
         $('#pw_change_link').hide();

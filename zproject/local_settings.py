@@ -128,4 +128,5 @@ EXTRA_INSTALLED_APPS = [
     'analytics',
     'zilencer',
     'corporate',
+    'approved_transfer',
 ]
