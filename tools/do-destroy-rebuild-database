@@ -13,6 +13,28 @@ sh "$(dirname "$0")/../scripts/setup/flush-memcached"
 
 python manage.py migrate --noinput
 python manage.py createcachetable third_party_api_results
+
+python manage.py dbshell <<EOF
+ALTER SEQUENCE zerver_realm_id_seq RESTART 1000;
+ALTER SEQUENCE zerver_client_id_seq RESTART 1000;
+ALTER SEQUENCE zerver_userprofile_id_seq RESTART 100000;
+ALTER SEQUENCE zerver_stream_id_seq RESTART 100000;
+ALTER SEQUENCE zerver_recipient_id_seq RESTART 100000;
+ALTER SEQUENCE zerver_message_id_seq RESTART 100000000;
+ALTER SEQUENCE zerver_usermessage_id_seq RESTART 1000000000;
+
+ALTER SEQUENCE zerver_subscription_id_seq RESTART 1000000;
+ALTER SEQUENCE zerver_huddle_id_seq RESTART 100000;
+ALTER SEQUENCE zerver_useractivity_id_seq RESTART 1000000;
+ALTER SEQUENCE zerver_userpresence_id_seq RESTART 100000;
+ALTER SEQUENCE zerver_useractivityinterval_id_seq RESTART 10000000;
+ALTER SEQUENCE zerver_defaultstream_id_seq RESTART 10000;
+ALTER SEQUENCE zerver_realmemoji_id_seq RESTART 1000;
+ALTER SEQUENCE zerver_realmalias_id_seq RESTART 1000;
+ALTER SEQUENCE zerver_realmfilter_id_seq RESTART 1000;
+ALTER SEQUENCE zerver_attachment_id_seq RESTART 100000;
+EOF
+
 python manage.py populate_db -n100 --threads=1
 # Ensure that the local user's API key is synced from ~/.zuliprc
 
