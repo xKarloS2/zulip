@@ -4,4 +4,4 @@ set -x
 source /srv/zulip-venv/bin/activate
 export PATH=$PATH:/srv/zulip-venv/bin
 ./tools/test-js-with-node
-coverage ./tools/test-js-with-casper
+coverage run ./tools/test-js-with-casper
