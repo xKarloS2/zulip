@@ -77,15 +77,23 @@ os.setpgrp()
 
 # Pass --nostatic because we configure static serving ourselves in
 # zulip/urls.py.
-cmds = [['./tools/compile-handlebars-templates', 'forever'],
-        ['./tools/webpack', '--watch', '--port', str(webpack_port)],
-        ['python', 'manage.py', 'rundjango'] +
-          manage_args + ['localhost:%d' % (django_port,)],
-        ['python', 'manage.py', 'runtornado'] +
-          manage_args + ['localhost:%d' % (tornado_port,)],
-        ['./tools/run-dev-queue-processors'] + manage_args,
-        ['env', 'PGHOST=localhost', # Force password authentication using .pgpass
-         './puppet/zulip/files/postgresql/process_fts_updates']]
+cmds = [
+    ['./tools/compile-handlebars-templates', 'forever'],
+    ['./tools/webpack', '--watch', '--port', str(webpack_port)],
+    ['./tools/run-dev-queue-processors'] + manage_args,
+    ['env', 'PGHOST=localhost', # Force password authentication using .pgpass
+     './puppet/zulip/files/postgresql/process_fts_updates']
+]
+server_cmds = [
+    ['python', 'manage.py', 'rundjango'] +
+    manage_args + ['localhost:%d' % (django_port,)],
+    ['python', 'manage.py', 'runtornado'] +
+    manage_args + ['localhost:%d' % (tornado_port,)],
+]
+if options.covreage:
+    server_cmds = [["coverage", "run"] + cmd for cmd in server_cmds]
+else:
+    cmds += server_cmds
 
 for cmd in cmds:
     subprocess.Popen(cmd)

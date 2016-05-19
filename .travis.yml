@@ -12,6 +12,8 @@ cache:
 env:
   global:
     - COVERALLS_PARALLEL=true
+    - COVERALLS_SERVICE_NAME=travis-pro
+    - COVERALLS_REPO_TOKEN=P6ImiMCUxBhJeRCt3OvnemwH7O92uejot
   matrix:
     - TEST_SUITE=frontend
     - TEST_SUITE=backend
@@ -35,4 +37,4 @@ addons:
 after_success:
   coveralls
 notifications:
-  webhooks: https://coveralls.io/webhook?repo_token=P6ImiMCUxBhJeRCt3OvnemwH7O92uejot
+  webhooks: https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN
