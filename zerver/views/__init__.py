@@ -866,6 +866,7 @@ def home(request):
             page_params["have_transfer_approval"] = True
         else:
             page_params["need_transfer_approval"] = True
+        page_params['show_transfer_approval'] = True
 
     statsd.incr('views.home')
     show_invites = True

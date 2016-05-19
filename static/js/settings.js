@@ -187,7 +187,20 @@ exports.setup_page = function () {
                 page_params.need_transfer_approval = false;
                 exports.setup_page();
             }
-        })
+        });
+    });
+    $('.disapproved_transfer_button').click(function (e) {
+        var data = {};
+        data.status = 'disapproved';
+        channel.post({
+            url: '/json/approve_transfer',
+            data: data,
+            success: function (data) {
+                page_params.negative_transfer_approval = true;
+                page_params.need_transfer_approval = false;
+                exports.setup_page();
+            }
+        });
     });
 
     $('#pw_change_link').on('click', function (e) {
