@@ -3,5 +3,6 @@ set -e
 set -x
 source /srv/zulip-venv/bin/activate
 export PATH=$PATH:/srv/zulip-venv/bin
-./tools/test-js-with-node
+./tools/test-js-with-node cover
 coverage run ./tools/test-js-with-casper
+cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
