@@ -45,7 +45,7 @@ subprocess.check_call(['rm', '-f'] + glob.glob('/tmp/casper-failure*.png'))
 log = open('frontend_tests/casper_tests/server.log', 'w')
 
 # Run this not through the shell, so that we have the actual PID.
-server = subprocess.Popen(('tools/run-dev.py', '--test'),
+server = subprocess.Popen(('tools/run-dev.py', '--test', '--coverage'),
                           stdout=log, stderr=log)
 
 def assert_server_running():

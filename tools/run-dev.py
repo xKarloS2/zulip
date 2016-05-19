@@ -39,6 +39,10 @@ parser.add_option('--test',
     action='store_true', dest='test',
     help='Use the testing database and ports')
 
+parser.add_option('--coverage',
+    action='store_true', dest='coverage',
+    help='Collect test coverage data')
+
 parser.add_option('--interface',
     action='store', dest='interface',
     default='127.0.0.1', help='Set the IP or hostname for the proxy to listen on')
