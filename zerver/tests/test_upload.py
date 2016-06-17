@@ -13,8 +13,10 @@ from zerver.lib.upload import sanitize_name, S3UploadBackend, \
     upload_message_image, delete_message_image, LocalUploadBackend
 import zerver.lib.upload
 from zerver.models import Attachment, Recipient, get_user_profile_by_email, \
-    get_old_unclaimed_attachments, Message, UserProfile
+    get_old_unclaimed_attachments, Message, UserProfile, Stream, Realm, \
+    RealmAlias, get_realm
 from zerver.lib.actions import do_delete_old_unclaimed_attachments
+from zilencer.models import Deployment
 
 import ujson
 from six.moves import urllib
@@ -138,13 +140,21 @@ class FileUploadTest(ZulipTestCase):
         self.assertIn('File not found', str(response.content))
 
         # invalid realm of 999999 (for non-zulip.com)
-        user = get_user_profile_by_email('hamlet@zulip.com')
-        user.realm.domain = 'example.com'
-        user.realm.save()
+        user = get_user_profile_by_email('sipbtest@mit.edu')
 
+        # Create an actual attachment object so we get to serve_s3.
+        path_id = 'unk/whatever'
+        file_name = "whatever"
+        Attachment.objects.create(file_name=file_name, path_id=path_id,
+                                  owner=user, realm=user.realm)
+        self.login(user.email)
         with use_s3(), getting_realm_id(999999):
-            response = self.client_get('/user_uploads/unk/whatever')
+            response = self.client_get("/user_uploads/unk/whatever")
         self.assertEqual(response.status_code, 403)
+
+        with use_s3(), getting_realm_id(None):
+            response = self.client_get("/user_uploads/unk/whatever")
+        self.assertEqual(response.status_code, 404)
 
     # This test will go through the code path for uploading files onto LOCAL storage
     # when zulip is in DEVELOPMENT mode.
@@ -180,9 +190,49 @@ class FileUploadTest(ZulipTestCase):
         self.send_message("hamlet@zulip.com", "Denmark", Recipient.STREAM, body, "test")
         self.assertIn('title="zulip.txt"', self.get_last_message().rendered_content)
 
+    def test_file_download_unauthed(self):
+        # type: () -> None
+        self.login("hamlet@zulip.com")
+        fp = StringIO("zulip!")
+        fp.name = "zulip.txt"
+        result = self.client_post("/json/upload_file", {'file': fp})
+        json = ujson.loads(result.content)
+        uri = json["uri"]
+
+        self.client_post('/accounts/logout/')
+        response = self.client_get(uri)
+        self.assert_json_error(response, "Not logged in: API authentication or user session required",
+                               status_code=401)
+
+    def test_removed_file_download(self):
+        # type: () -> None
+        '''
+        Trying to download deleted files should return 404 error
+        '''
+        self.login("hamlet@zulip.com")
+        fp = StringIO("zulip!")
+        fp.name = "zulip.txt"
+        result = self.client_post("/json/upload_file", {'file': fp})
+        json = ujson.loads(result.content)
+        uri = json["uri"]
+
+        destroy_uploads()
+
+        response = self.client_get(uri)
+        self.assertEqual(response.status_code, 404)
+
+    def test_non_existing_file_download(self):
+        # type: () -> None
+        '''
+        Trying to download a file that was never uploaded will return a json_error
+        '''
+        self.login("hamlet@zulip.com")
+        response = self.client_get("http://localhost:9991/user_uploads/1/ff/gg/abc.py")
+        self.assertEqual(response.status_code, 404)
+        self.assert_in_response('File not found.', response)
+
     def test_delete_old_unclaimed_attachments(self):
         # type: () -> None
-
         # Upload some files and make them older than a weeek
         self.login("hamlet@zulip.com")
         d1 = StringIO("zulip!")
@@ -316,6 +366,128 @@ class FileUploadTest(ZulipTestCase):
             result = self.client_post("/json/upload_file", {'f1': fp})
             content = ujson.loads(result.content)
             assert sanitize_name(expected) in content['uri']
+
+    def test_cross_realm_file_access(self):
+        # type: () -> None
+
+        def create_user(email):
+            # type: (Text) -> None
+            self.register(email, 'test')
+            return get_user_profile_by_email(email)
+
+        user1_email = 'user1@uploadtest.example.com'
+        user2_email = 'test-og-bot@zulip.com'
+        user3_email = 'other-user@uploadtest.example.com'
+
+        settings.CROSS_REALM_BOT_EMAILS.add(user2_email)
+        settings.CROSS_REALM_BOT_EMAILS.add(user3_email)
+        dep = Deployment()
+        dep.base_api_url = "https://zulip.com/api/"
+        dep.base_site_url = "https://zulip.com/"
+        # We need to save the object before we can access
+        # the many-to-many relationship 'realms'
+        dep.save()
+        dep.realms = [get_realm("zulip")]
+        dep.save()
+
+        r1 = Realm.objects.create(domain='uploadtest.example.com', invite_required=False)
+        RealmAlias.objects.create(realm=r1, domain='uploadtest.example.com')
+        deployment = Deployment.objects.filter()[0]
+        deployment.realms.add(r1)
+
+        create_user(user1_email)
+        create_user(user2_email)
+        create_user(user3_email)
+
+        # Send a message from @zulip.com -> @uploadtest.example.com
+        self.login(user2_email, 'test')
+        fp = StringIO("zulip!")
+        fp.name = "zulip.txt"
+        result = self.client_post("/json/upload_file", {'file': fp})
+        json = ujson.loads(result.content)
+        uri = json["uri"]
+        fp_path_id = re.sub('/user_uploads/', '', uri)
+        body = "First message ...[zulip.txt](http://localhost:9991/user_uploads/" + fp_path_id + ")"
+        self.send_message(user2_email, user1_email, Recipient.PERSONAL, body)
+
+        self.login(user1_email, 'test')
+        response = self.client_get(uri)
+        self.assertEqual(response.status_code, 200)
+        data = b"".join(response.streaming_content)
+        self.assertEqual(b"zulip!", data)
+        self.client_post('/accounts/logout/')
+
+        # Confirm other cross-realm users can't read it.
+        self.login(user3_email, 'test')
+        response = self.client_get(uri)
+        self.assertEqual(response.status_code, 403)
+        self.assert_in_response("You are not authorized to view this file.", response)
+
+    def test_file_download_authorization_invite_only(self):
+        # type: () -> None
+        subscribed_users = ["hamlet@zulip.com", "iago@zulip.com"]
+        unsubscribed_users = ["othello@zulip.com", "prospero@zulip.com"]
+        for user in subscribed_users:
+            self.subscribe_to_stream(user, "test-subscribe")
+
+        # Make the stream private
+        stream = Stream.objects.get(name='test-subscribe')
+        stream.invite_only = True
+        stream.save()
+
+        self.login("hamlet@zulip.com")
+        fp = StringIO("zulip!")
+        fp.name = "zulip.txt"
+        result = self.client_post("/json/upload_file", {'file': fp})
+        json = ujson.loads(result.content)
+        uri = json["uri"]
+        fp_path_id = re.sub('/user_uploads/', '', uri)
+        body = "First message ...[zulip.txt](http://localhost:9991/user_uploads/" + fp_path_id + ")"
+        self.send_message("hamlet@zulip.com", "test-subscribe", Recipient.STREAM, body, "test")
+        self.client_post('/accounts/logout/')
+
+        # Subscribed user should be able to view file
+        for user in subscribed_users:
+            self.login(user)
+            response = self.client_get(uri)
+            self.assertEqual(response.status_code, 200)
+            data = b"".join(response.streaming_content)
+            self.assertEqual(b"zulip!", data)
+            self.client_post('/accounts/logout/')
+
+        # Unsubscribed user should not be able to view file
+        for user in unsubscribed_users:
+            self.login(user)
+            response = self.client_get(uri)
+            self.assertEqual(response.status_code, 403)
+            self.assert_in_response("You are not authorized to view this file.", response)
+            self.client_post('/accounts/logout/')
+
+    def test_file_download_authorization_public(self):
+        # type: () -> None
+        subscribed_users = ["hamlet@zulip.com", "iago@zulip.com"]
+        unsubscribed_users = ["othello@zulip.com", "prospero@zulip.com"]
+        for user in subscribed_users:
+            self.subscribe_to_stream(user, "test-subscribe")
+
+        self.login("hamlet@zulip.com")
+        fp = StringIO("zulip!")
+        fp.name = "zulip.txt"
+        result = self.client_post("/json/upload_file", {'file': fp})
+        json = ujson.loads(result.content)
+        uri = json["uri"]
+        fp_path_id = re.sub('/user_uploads/', '', uri)
+        body = "First message ...[zulip.txt](http://localhost:9991/user_uploads/" + fp_path_id + ")"
+        self.send_message("hamlet@zulip.com", "test-subscribe", Recipient.STREAM, body, "test")
+        self.client_post('/accounts/logout/')
+
+        # Now all users should be able to access the files
+        for user in subscribed_users + unsubscribed_users:
+            self.login(user)
+            response = self.client_get(uri)
+            data = b"".join(response.streaming_content)
+            self.assertEqual(b"zulip!", data)
+            self.client_post('/accounts/logout/')
 
     def tearDown(self):
         # type: () -> None

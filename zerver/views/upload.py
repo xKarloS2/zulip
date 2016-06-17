@@ -12,7 +12,7 @@ from zerver.lib.response import json_success, json_error
 from zerver.lib.upload import upload_message_image_from_request, get_local_file_path, \
     get_signed_upload_url, get_realm_for_filename
 from zerver.lib.validator import check_bool
-from zerver.models import UserProfile
+from zerver.models import UserProfile, validate_attachment_request
 from django.conf import settings
 
 def serve_s3(request, user_profile, realm_id_str, filename):
@@ -51,6 +51,12 @@ def serve_local(request, path_id):
 def serve_file_backend(request, user_profile, realm_id_str, filename):
     # type: (HttpRequest, UserProfile, str, str) -> HttpResponse
     path_id = "%s/%s" % (realm_id_str, filename)
+    is_authorized = validate_attachment_request(user_profile, path_id)
+
+    if is_authorized is None:
+        return HttpResponseNotFound(_("<p>File not found.</p>"))
+    if not is_authorized:
+        return HttpResponseForbidden(_("<p>You are not authorized to view this file.</p>"))
     if settings.LOCAL_UPLOADS_DIR is not None:
         return serve_local(request, path_id)
 
