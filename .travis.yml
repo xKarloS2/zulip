@@ -1,9 +1,10 @@
 before_install:
-   - nvm install 0.10
+   - sudo apt-get -y install moreutils
+   - nvm install 0.10 | ts
 install:
-  - pip install coveralls
-  - tools/travis/setup-$TEST_SUITE
-  - tools/clean-venv-cache --travis
+  - pip install coveralls | ts
+  - tools/travis/setup-$TEST_SUITE | ts
+  - tools/clean-venv-cache --travis | ts
 cache:
   - apt: false
   - directories:
@@ -30,7 +31,7 @@ matrix:
       env: TEST_SUITE=mypy
 # command to run tests
 script:
-  - ./tools/travis/$TEST_SUITE
+  - ./tools/travis/$TEST_SUITE | ts
 sudo: required
 services:
 - docker
