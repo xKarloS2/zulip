@@ -330,6 +330,20 @@ def check_custom_checks_nonpy():
 
     return failed
 
+# It'd probably be better to use a third-party tool that can check
+# more things, but it seems worth addressing these common issues
+# regardless.
+def check_commit_messages():
+    failed = False
+    output = subprocess.check_output(["git", "log", "--format=%s",
+                                      "HEAD~100..HEAD"]).strip()
+    for line in output.split('\n'):
+        if not line.strip().endswith('.'):
+            print("Commit message subject should end with a '.':")
+            print("  '%s'" % (line))
+            failed = True
+    return failed
+
 lint_functions = {}
 
 def run_parallel():
@@ -390,6 +404,11 @@ try:
     @lint
     def pyflakes():
         failed = check_pyflakes()
+        return 1 if failed else 0
+
+    @lint
+    def commit_messages():
+        failed = check_commit_messages()
         return 1 if failed else 0
 
     failed = run_parallel()
