@@ -1374,6 +1374,7 @@ def bulk_add_subscriptions(streams, users):
 
         new_users = [user for user in users if (user.id, stream.id) in new_streams]
         new_user_ids = [user.id for user in new_users]
+        non_new_user_ids = set(active_user_ids(user_profile.realm)) - set(new_user_ids)
         all_subscribed_ids = [user.id for user in all_subs_by_stream[stream.id]]
         other_user_ids = set(all_subscribed_ids) - set(new_user_ids)
         if not stream.invite_only:
@@ -1384,7 +1385,7 @@ def bulk_add_subscriptions(streams, users):
                 event = dict(type="subscription", op="peer_add",
                              subscriptions=[stream.name],
                              user_email=user_profile.email)
-                send_event(event, active_user_ids(user_profile.realm))
+                send_event(event, non_new_user_ids)
         elif other_user_ids:
             for user_profile in new_users:
                 event = dict(type="subscription", op="peer_add",

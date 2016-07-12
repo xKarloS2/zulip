@@ -1062,7 +1062,7 @@ class SubscriptionAPITest(AuthedTestCase):
                 set([email1, email2, self.test_email])
         )
 
-        self.assertEqual(len(add_peer_event['users']), 14)
+        self.assertEqual(len(add_peer_event['users']), 13)
         self.assertEqual(add_peer_event['event']['type'], 'subscription')
         self.assertEqual(add_peer_event['event']['op'], 'peer_add')
         self.assertEqual(add_peer_event['event']['user_email'], self.test_email)
