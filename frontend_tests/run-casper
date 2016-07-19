@@ -39,6 +39,7 @@ parser.add_option('--remote-debug',
                   default=False)
 (options, args) = parser.parse_args()
 
+
 os.chdir(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
 subprocess.check_call('tools/setup/generate-test-credentials')
@@ -46,6 +47,9 @@ subprocess.check_call('tools/setup/generate-test-credentials')
 subprocess.check_call(['rm', '-f'] + glob.glob('/tmp/casper-failure*.png'))
 
 log = open('frontend_tests/casper_tests/server.log', 'w')
+
+# Run this not through the shell, so that we have the actual PID.
+
 
 def assert_server_running(server):
     # type: () -> None
@@ -70,20 +74,17 @@ def run_tests(files):
         test_files.append(os.path.abspath(file))
 
     subprocess.check_call('tools/setup/generate-fixtures')
-
+    server = subprocess.Popen(('tools/run-dev.py', '--test'),
+                          stdout=log, stderr=log)
     remote_debug = ""
     if options.remote_debug:
         remote_debug = "--remote-debugger-port=7777 --remote-debugger-autorun=yes"
-
     cmd = "frontend_tests/casperjs/bin/casperjs %s test " % (remote_debug,)
+
     if test_files:
         cmd += ' '.join(test_files)
     else:
         cmd += 'frontend_tests/casper_tests'
-
-    # Run this not through the shell, so that we have the actual PID.
-    server = subprocess.Popen(('tools/run-dev.py', '--test'),
-                              stdout=log, stderr=log)
 
     ret = 1
 
@@ -104,13 +105,12 @@ def run_tests(files):
 
     if ret != 0:
         print("""
-Oops, the frontend tests failed. Tips for debugging:
- * Check the frontend test server logs at frontend_tests/casper_tests/server.log
- * Check the screenshots of failed tests at /tmp/casper-failure*.png
- * Try remote debugging the test web browser as described in docs/testing.rst
-""", file=sys.stderr)
-
+    Oops, the frontend tests failed. Tips for debugging:
+    * Check the frontend test server logs at frontend_tests/casper_tests/server.log
+    * Check the screenshots of failed tests at /tmp/casper-failure*.png
+    * Try remote debugging the test web browser as described in docs/testing.rst
+    """, file=sys.stderr)
         sys.exit(ret)
 
-run_tests(args)
+run_tests(files=args)
 sys.exit(0)
