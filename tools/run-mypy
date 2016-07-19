@@ -26,6 +26,7 @@ api/integrations/trac/zulip_trac_config.py
 api/integrations/trac/zulip_trac.py
 bots/jabber_mirror_backend.py
 bots/zephyr_mirror_backend.py
+puppet/zulip_ops/files/graphite/local_settings.py
 tools/deprecated/generate-activity-metrics.py
 zproject/settings.py
 zproject/test_settings.py
