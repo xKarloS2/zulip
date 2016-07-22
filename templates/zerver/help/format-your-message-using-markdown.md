@@ -131,3 +131,17 @@ a space before your phrase or submit it as a quote block by following
 the code syntax highlighting format.
 
 ![Quotes](/static/images/help/quotes-screenshot.png)
+
+## TeX
+
+You can display TeX expressions in Zulip. For inline content, surround
+valid TeX syntax with double dollar signs `$$`.
+
+![Inline TeX](/static/images/help/inline-tex-screenshot.png)
+
+Also, you can show TeX in *display mode*, which is centered and with
+full size elements (e.g. expanded integrals). To do so, fence the
+expression with three back-ticks ` ``` `, with **math**, **tex** or
+**latex** immediately after the first set of back-ticks.
+
+![Display mode TeX](/static/images/help/display-mode-tex-screenshot.png)

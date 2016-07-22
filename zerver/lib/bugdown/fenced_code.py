@@ -62,8 +62,12 @@ Dependencies:
 """
 
 import re
+import subprocess
 import markdown
+import six
 from markdown.extensions.codehilite import CodeHilite, CodeHiliteExtension
+from zerver.lib.str_utils import force_bytes
+from zerver.lib.tex import render_tex
 from typing import Any, Dict, Iterable, List, MutableSequence, Optional, Tuple, Union, Text
 
 # Global vars
@@ -170,6 +174,8 @@ class FencedBlockPreprocessor(markdown.preprocessors.Preprocessor):
             # type: (MutableSequence[Text], Text, Text) -> BaseHandler
             if lang in ('quote', 'quoted'):
                 return QuoteHandler(output, fence)
+            elif lang in ('math', 'tex', 'latex'):
+                return TexHandler(output, fence)
             else:
                 return CodeHandler(output, fence, lang)
 
@@ -191,6 +197,31 @@ class FencedBlockPreprocessor(markdown.preprocessors.Preprocessor):
                 # type: () -> None
                 text = '\n'.join(self.lines)
                 text = processor.format_quote(text)
+                processed_lines = text.split('\n')
+                self.output.append('')
+                self.output.extend(processed_lines)
+                self.output.append('')
+                pop()
+
+        class TexHandler(BaseHandler):
+            def __init__(self, output, fence):
+                # type: (MutableSequence[Text], Text) -> None
+                self.output = output
+                self.fence = fence
+                self.lines = [] # type: List[Text]
+
+            def handle_line(self, line):
+                # type: (Text) -> None
+                if line.rstrip() == self.fence:
+                    self.done()
+                else:
+                    check_for_new_fence(self.lines, line)
+
+            def done(self):
+                # type: () -> None
+                text = '\n'.join(self.lines)
+                text = processor.format_tex(text)
+                text = processor.placeholder(text)
                 processed_lines = text.split('\n')
                 self.output.append('')
                 self.output.extend(processed_lines)
@@ -239,6 +270,28 @@ class FencedBlockPreprocessor(markdown.preprocessors.Preprocessor):
             output.append('')
         return output
 
+    def format_quote(self, text):
+        # type: (Text) -> Text
+        paragraphs = text.split("\n\n")
+        quoted_paragraphs = []
+        for paragraph in paragraphs:
+            lines = paragraph.split("\n")
+            quoted_paragraphs.append("\n".join("> " + line for line in lines if line != ''))
+        return "\n\n".join(quoted_paragraphs)
+
+    def format_tex(self, text):
+        # type: (Text) -> Text
+        paragraphs = text.split("\n\n")
+        tex_paragraphs = []
+        for paragraph in paragraphs:
+            html = render_tex(paragraph, is_inline=False)
+            if html is not None:
+                tex_paragraphs.append(six.u(html))
+            else:
+                tex_paragraphs.append('<span class="tex-error">' + paragraph +
+                                      '</span>')
+        return "\n\n".join(tex_paragraphs)
+
     def format_code(self, lang, text):
         # type: (Text, Text) -> Text
         if lang:
@@ -272,15 +325,6 @@ class FencedBlockPreprocessor(markdown.preprocessors.Preprocessor):
             code = CODE_WRAP % (langclass, self._escape(text))
 
         return code
-
-    def format_quote(self, text):
-        # type: (Text) -> Text
-        paragraphs = text.split("\n\n")
-        quoted_paragraphs = []
-        for paragraph in paragraphs:
-            lines = paragraph.split("\n")
-            quoted_paragraphs.append("\n".join("> " + line for line in lines if line != ''))
-        return "\n\n".join(quoted_paragraphs)
 
     def placeholder(self, code):
         # type: (Text) -> Text

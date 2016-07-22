@@ -7,12 +7,13 @@
   "dependencies": {
     "handlebars": "4.0.6",
     "i18next": "3.0.0",
-    "i18next-parser": "0.11.1",
-    "i18next-xhr-backend": "0.5.4",
     "i18next-browser-languagedetector": "0.3.0",
     "i18next-localstorage-cache": "0.3.0",
+    "i18next-parser": "0.11.1",
+    "i18next-xhr-backend": "0.5.4",
     "jquery": "1.12.1",
     "jquery-validation": "1.15.1",
+    "katex": "0.7.1",
     "plotly.js": "1.19.2",
     "string.prototype.codepointat": "0.2.0",
     "underscore": "1.8.3",
@@ -35,7 +36,8 @@
   },
   "scripts": {
     "lint": "eslint --quiet",
-    "lint-loud": "eslint static/js frontend_tests"
+    "lint-loud": "eslint static/js frontend_tests",
+    "katex": "katex"
   },
   "repository": {
     "type": "git",
