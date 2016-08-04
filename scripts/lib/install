@@ -17,6 +17,7 @@ VIRTUALENV_NEEDED="${VIRTUALENV_NEEDED:-yes}"
 
 # Add the Zulip PPA
 apt-add-repository --enable-source --yes ppa:tabbott/zulip
+apt-add-repository --enable-source --yes 'deb https://deb.nodesource.com/node trusty main'
 apt-get update
 apt-get -y dist-upgrade $APT_OPTIONS
 apt-get install -y puppet git python python-six crudini $ADDITIONAL_PACKAGES
