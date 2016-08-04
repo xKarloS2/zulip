@@ -161,6 +161,7 @@ def main():
 
     # Add the Zulip PPA and install apt dependencies
     run(["sudo", "apt-add-repository", "--enable-source", "--yes", "ppa:tabbott/zulip"])
+    run(["sudo", "apt-add-repository", "--enable-source", "--yes", "deb https://deb.nodesource.com/node trusty main"])
     run(["sudo", "apt-get", "update"])
     run(["sudo", "apt-get", "-y", "install", "--no-install-recommends"] + APT_DEPENDENCIES[codename])
 
