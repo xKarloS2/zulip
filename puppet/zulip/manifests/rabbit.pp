@@ -59,7 +59,7 @@ class zulip::rabbit {
       before => Service[rabbitmq-server],
       onlyif => "test ! -f /var/lib/rabbitmq/mnesia/$rabbitmq_nodename",
       subscribe => File["/etc/rabbitmq/rabbitmq-env.conf"],
-      command => 'bash -c "pkill -f rabbitmq-server; rm -rf /var/lib/rabbitmq/mnesia/rabbit@*"',
+      command => 'bash -c "pkill -f rabbitmq-server; rm -rf /var/lib/rabbitmq/mnesia/rabbit@*"; exit 0',
     }
   }
   # epmd doesn't have an init script, so we just check if it is
