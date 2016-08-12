@@ -54,12 +54,12 @@ class zulip::rabbit {
     # Hackishly try to stop rabbitmq-server and purge data so that we
     # can set our own nodename.  Intended to only run as part of
     # installation.
-    exec { "stop_rabbitmq":
+    exec { "stop_dump_rabbitmq":
       require => Package[rabbitmq-server],
       before => Service[rabbitmq-server],
       onlyif => "test ! -f /var/lib/rabbitmq/mnesia/$rabbitmq_nodename",
       subscribe => File["/etc/rabbitmq/rabbitmq-env.conf"],
-      command => 'pkill -f rabbitmq-server; rm -rf /var/lib/rabbitmq/mnesia/rabbit@*',
+      command => 'bash -c "pkill -f rabbitmq-server; rm -rf /var/lib/rabbitmq/mnesia/rabbit@*"',
     }
   }
   # epmd doesn't have an init script, so we just check if it is
