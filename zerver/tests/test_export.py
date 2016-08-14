@@ -142,7 +142,7 @@ class ExportTest(TestCase):
         um = UserMessage.objects.all()[0]
         exported_um = find_by_id('zerver_usermessage', um.id)
         self.assertEqual(exported_um['message'], um.message_id)
-        self.assertEqual(exported_um['user_profile'], um.message_id)
+        self.assertEqual(exported_um['user_profile'], um.user_profile_id)
 
         exported_message = find_by_id('zerver_message', um.message_id)
         self.assertEqual(exported_message['content'], um.message.content)
