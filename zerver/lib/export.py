@@ -695,10 +695,11 @@ def export_partial_message_files(realm, response, chunk_size=1000, output_dir=No
         response['zerver_userprofile'] +
         response['zerver_userprofile_mirrordummy'] +
         response['zerver_userprofile_crossrealm'])
+    ids_of_non_exported_possible_recipients = ids_of_our_possible_senders - user_ids_for_us
 
     recipients_for_them = Recipient.objects.filter(
         type=Recipient.PERSONAL,
-        type_id__in=ids_of_our_possible_senders).values("id")
+        type_id__in=ids_of_non_exported_possible_recipients).values("id")
     recipient_ids_for_them = get_ids(recipients_for_them)
 
     # We capture most messages here, since the
