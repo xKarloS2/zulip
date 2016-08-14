@@ -135,6 +135,15 @@ def write_data_to_file(output_file, data):
     with open(output_file, "w") as f:
         f.write(ujson.dumps(data, indent=4))
 
+def export_missing_recipients(realm, ids_being_transferred):
+    realm_subs = Subscription.objects.filter(recipient__type=Recipient.PERSONAL,
+                                             user_profile__realm=realm)
+    user_ids = [sub.user_profile.id for sub in realm_subs
+                if sub.user_profile.id not in ids_being_transferred]
+    missing_recipients = Recipient.objects.filter(type=Recipient.PERSONAL,
+                                                  type_id__in=user_ids)
+    return ujson.dumps(make_raw(missing_recipients))
+
 def make_raw(query, exclude=None):
     # type: (Any, List[Field]) -> List[Record]
     '''
