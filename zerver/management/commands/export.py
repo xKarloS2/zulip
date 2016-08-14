@@ -122,7 +122,8 @@ class Command(BaseCommand):
         if num_threads < 1:
             raise CommandError('You must have at least one thread.')
 
-        do_export_realm(realm, output_dir, threads=num_threads)
+        do_export_realm(realm, output_dir, threads=num_threads,
+                        exportable_user_ids=[])
         print("Finished exporting to %s; tarring" % (output_dir,))
 
         do_write_stats_file_for_realm_export(output_dir)
