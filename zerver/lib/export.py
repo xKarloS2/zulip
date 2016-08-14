@@ -537,8 +537,9 @@ def fetch_user_profile(response, config, context):
                 assert not row['is_mirror_dummy']
             else:
                 # Convert non-exportable users to
-                # is_mirror_dummy.
+                # inactive is_mirror_dummy users.
                 row['is_mirror_dummy'] = True
+                row['is_active'] = False
 
         if row['is_mirror_dummy']:
             dummy_rows.append(row)
