@@ -393,6 +393,9 @@ class SessionHostDomainMiddleware(SessionMiddleware):
                     # subdomain.
                     if settings.REALMS_HAVE_SUBDOMAINS:
                         session_cookie_domain = host
+                    if hasattr(request, "authed_subdomain"):
+                        # Make sure the realm registration flow does cookies right
+                        session_cookie_domain = "%s.%s" % (request.authed_subdomain, settings.EXTERNAL_HOST)
                     response.set_cookie(settings.SESSION_COOKIE_NAME,
                             request.session.session_key, max_age=max_age,
                             expires=expires, domain=session_cookie_domain,
