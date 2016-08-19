@@ -272,7 +272,7 @@ def resolve_email_to_domain(email):
 def resolve_subdomain_to_realm(subdomain):
     # type: (text_type) -> Optional[Realm]
     try:
-        return Realm.objects.get(subdomain=subdomain)
+        return Realm.objects.get(subdomain=subdomain.lower())
     except Realm.DoesNotExist:
         return None
 

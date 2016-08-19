@@ -93,7 +93,7 @@ class RegistrationForm(forms.Form):
 
     def clean_realm_subdomain(self):
         # type: () -> str
-        data = self.cleaned_data['realm_subdomain']
+        data = self.cleaned_data['realm_subdomain'].lower()
         realm = resolve_subdomain_to_realm(data)
         if realm is not None:
             raise ValidationError(subdomain_unavailable(data))
