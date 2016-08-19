@@ -188,6 +188,7 @@ def accounts_register(request):
             if settings.REALMS_HAVE_SUBDOMAINS:
                 realm = do_create_realm(domain, realm_name, org_type=org_type,
                                         subdomain=form.cleaned_data['realm_subdomain'])[0]
+                request.authed_subdomain = realm.subdomain
             else:
                 realm = do_create_realm(domain, realm_name, org_type=org_type)[0]
 
