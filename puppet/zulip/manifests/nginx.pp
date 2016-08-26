@@ -4,6 +4,10 @@ class zulip::nginx {
                    ]
   package { $web_packages: ensure => "installed" }
 
+  if $zulip::base::release_name == "xenial" {
+    package { "upstart": ensure => "absent" }
+  }
+
   file { "/etc/nginx/zulip-include/":
     require => Package["nginx-full"],
     recurse => true,
@@ -47,6 +51,7 @@ class zulip::nginx {
   }
 
   service { 'nginx':
+    require    => Package["upstart"],
     ensure     => running,
   }
 }
