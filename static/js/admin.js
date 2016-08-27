@@ -148,11 +148,11 @@ exports.reset_realm_default_language = function () {
 exports.populate_auth_methods = function (auth_methods) {
     var auth_methods_table = $("#admin_auth_methods_table").expectOne();
     auth_methods_table.find('tr.method_row').remove();
-    _.each(auth_methods, function (val,key) {
+    _.each(_.keys(auth_methods).sort(), function (key) {
         auth_methods_table.append(templates.render('admin_auth_methods_list', {
             method: {
                 method: key,
-                enabled: val
+                enabled: auth_methods[key]
             }
         }));
     });
