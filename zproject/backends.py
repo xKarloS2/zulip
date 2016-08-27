@@ -23,15 +23,6 @@ from social.backends.github import GithubOAuth2, GithubOrganizationOAuth2, \
 from social.exceptions import AuthFailed
 from django.contrib.auth import authenticate
 
-AUTH_BACKEND_NAME_MAP = {
-    "Dev": DevAuthBackend,
-    "Email": EmailAuthBackend,
-    "GitHub": GitHubAuthBackend,
-    "Google": GoogleMobileOauth2Backend,
-    "LDAP": ZulipLDAPAuthBackend,
-    "RemoteUser": ZulipRemoteUserBackend,
-    }
-
 def auth_enabled_helper(backends_to_check, realm):
     # type: (List[Tuple[str, Any], Realm) -> bool
     if realm is not None:
@@ -354,3 +345,13 @@ class GitHubAuthBackend(SocialAuthMixin, GithubOAuth2):
                 user_profile = None
 
         return self.process_do_auth(user_profile, *args, **kwargs)
+
+AUTH_BACKEND_NAME_MAP = {
+    "Dev": DevAuthBackend,
+    "Email": EmailAuthBackend,
+    "GitHub": GitHubAuthBackend,
+    "Google": GoogleMobileOauth2Backend,
+    "LDAP": ZulipLDAPAuthBackend,
+    "RemoteUser": ZulipRemoteUserBackend,
+    }
+

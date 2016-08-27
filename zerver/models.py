@@ -167,10 +167,13 @@ class Realm(ModelReprMixin, models.Model):
 
     def authentication_methods_dict(self):
         # type: () -> Dict[str, bool]
-        ret = {}
-        # THIS IS WRONG -- NEED TO DO ISINSTANCE CHECKS.
-        return {k: v for k, v in self.authentication_methods.iteritems()
-                if AUTH_BACKEND_NAME_MAP[k] in django.contrib.auth.get_backends()}
+        ret = {} # type: Dict[str, bool]
+        supported_backends = {backend.__class__ for backend in django.contrib.auth.get_backends()}
+        for k, v in self.authentication_methods.iteritems():
+            backend = AUTH_BACKEND_NAME_MAP[k]
+            if backend in supported_backends:
+                ret[k] = v
+        return ret
 
     @cache_with_key(get_realm_emoji_cache_key, timeout=3600*24*7)
     def get_emoji(self):
