@@ -10,6 +10,7 @@ from django.db.models import Manager
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, UserManager, \
     PermissionsMixin
+import django.contrib.auth
 from django.dispatch import receiver
 from zerver.lib.cache import cache_with_key, flush_user_profile, flush_realm, \
     user_profile_by_id_cache_key, user_profile_by_email_cache_key, \
@@ -137,7 +138,7 @@ class Realm(ModelReprMixin, models.Model):
     domain = models.CharField(max_length=40, db_index=True, unique=True) # type: text_type
     # name is the user-visible identifier for the realm. It has no required
     # structure.
-    AUTHENTICATION_FLAGS = ['Google', 'Email', 'GitHub']
+    AUTHENTICATION_FLAGS = ['Google', 'Email', 'GitHub', 'LDAP']
 
     name = models.CharField(max_length=40, null=True) # type: Optional[text_type]
     restricted_to_domain = models.BooleanField(default=True) # type: bool
@@ -166,7 +167,10 @@ class Realm(ModelReprMixin, models.Model):
 
     def authentication_methods_dict(self):
         # type: () -> Dict[str, bool]
-        return {k: v for k, v in self.authentication_methods.iteritems()}
+        ret = {}
+        # THIS IS WRONG -- NEED TO DO ISINSTANCE CHECKS.
+        return {k: v for k, v in self.authentication_methods.iteritems()
+                if AUTH_BACKEND_NAME_MAP[k] in django.contrib.auth.get_backends()}
 
     @cache_with_key(get_realm_emoji_cache_key, timeout=3600*24*7)
     def get_emoji(self):

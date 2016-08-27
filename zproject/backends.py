@@ -23,6 +23,15 @@ from social.backends.github import GithubOAuth2, GithubOrganizationOAuth2, \
 from social.exceptions import AuthFailed
 from django.contrib.auth import authenticate
 
+AUTH_BACKEND_NAME_MAP = {
+    "Dev": DevAuthBackend,
+    "Email": EmailAuthBackend,
+    "GitHub": GitHubAuthBackend,
+    "Google": GoogleMobileOauth2Backend,
+    "LDAP": ZulipLDAPAuthBackend,
+    "RemoteUser": ZulipRemoteUserBackend,
+    }
+
 def auth_enabled_helper(backends_to_check, realm):
     # type: (List[Tuple[str, Any], Realm) -> bool
     if realm is not None:
@@ -30,7 +39,8 @@ def auth_enabled_helper(backends_to_check, realm):
     else:
         enabled_method_dict = dict((method, True) for method in Realm.AUTHENTICATION_METHODS_DICT)
     for supported_backend in django.contrib.auth.get_backends():
-        for (method, backend) in backends_to_check:
+        for method in backends_to_check:
+            backend = AUTH_BACKEND_NAME_MAP[method]
             if enabled_method_dict[method] and isinstance(backend, supported_backend):
                 return True
     return False
