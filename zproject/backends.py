@@ -23,23 +23,23 @@ from social.backends.github import GithubOAuth2, GithubOrganizationOAuth2, \
 from social.exceptions import AuthFailed
 from django.contrib.auth import authenticate
 
-def password_auth_enabled(realm):
-    # type: (Realm) -> bool
+def auth_enabled_helper(backends_to_check, realm):
+    # type: (List[Tuple[str, Any], Realm) -> bool
     if realm is not None:
-        method_dict = realm.authentication_methods_dict()
-        for backend in django.contrib.auth.get_backends():
-            if method_dict['Email'] and isinstance(backend, EmailAuthBackend):
+        enabled_method_dict = realm.authentication_methods_dict()
+    else:
+        enabled_method_dict = dict((method, True) for method in Realm.AUTHENTICATION_METHODS_DICT)
+    for supported_backend in django.contrib.auth.get_backends():
+        for (method, backend) in backends_to_check:
+            if enabled_method_dict[method] and isinstance(backend, supported_backend):
                 return True
-            if method_dict['GitHub'] and isinstance(backend, GitHubAuthBackend):
-                return True
-        return False
-
-    for backend in django.contrib.auth.get_backends():
-        if isinstance(backend, EmailAuthBackend):
-            return True
-        if isinstance(backend, ZulipLDAPAuthBackend):
-            return True
     return False
+
+def password_auth_enabled(realm=None):
+    # type: (Realm) -> bool
+    return auth_enabled_helper([("Email", EmailAuthBackend),
+                                ("LDAP", ZulipLDAPAuthBackend)],
+                               realm)
 
 def dev_auth_enabled():
     # type: () -> bool
@@ -48,12 +48,13 @@ def dev_auth_enabled():
             return True
     return False
 
-def google_auth_enabled():
+def google_auth_enabled(realm=None):
     # type: () -> bool
-    for backend in django.contrib.auth.get_backends():
-        if isinstance(backend, GoogleMobileOauth2Backend):
-            return True
-    return False
+    return auth_enabled_helper([("Google", GoogleMobileOauth2Backend)])
+
+def github_auth_enabled(realm=None):
+    # type: () -> bool
+    return auth_enabled_helper([("GitHub", GitHubAuthBackend)])
 
 def common_get_active_user_by_email(email, return_data=None):
     # type: (text_type, Optional[Dict[str, Any]]) -> Optional[UserProfile]
@@ -70,13 +71,6 @@ def common_get_active_user_by_email(email, return_data=None):
             return_data['inactive_realm'] = True
         return None
     return user_profile
-
-def github_auth_enabled():
-    # type: () -> bool
-    for backend in django.contrib.auth.get_backends():
-        if isinstance(backend, GitHubAuthBackend):
-            return True
-    return False
 
 class ZulipAuthMixin(object):
     def get_user(self, user_profile_id):
