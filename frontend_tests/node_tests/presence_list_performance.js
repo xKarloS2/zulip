@@ -27,9 +27,7 @@ compose_fade.update_faded_users = function () {
    return;
 };
 
-var jsdom = require("jsdom");
-var window = jsdom.jsdom().defaultView;
-global.$ = require('jquery')(window);
+global.$ = require('jQuery');
 $.fn.expectOne = function () {
     assert(this.length === 1);
     return this;

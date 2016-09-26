@@ -20,9 +20,7 @@ set_global('message_store', {
 
 var stream_list = require('js/stream_list.js');
 
-var jsdom = require("jsdom");
-var window = jsdom.jsdom().defaultView;
-global.$ = require('jquery')(window);
+global.$ = require('jQuery');
 $.fn.expectOne = function () {
     assert(this.length === 1);
     return this;
@@ -109,7 +107,7 @@ global.use_template('stream_privacy');
 
     var li = stream_list.get_stream_li('social');
     assert.equal(li.attr('data-name'), 'social');
-    assert.equal(li.find('.streamlist_swatch').attr('style'), 'background-color: green');
+    assert.equal(li.find('.streamlist_swatch').css('background-color'), 'green');
     assert.equal(li.find('a.subscription_name').text().trim(), 'social');
     assert(li.find('.arrow').find("i").hasClass("icon-vector-chevron-down"));
 
