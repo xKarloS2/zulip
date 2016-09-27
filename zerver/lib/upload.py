@@ -240,6 +240,11 @@ class S3UploadBackend(ZulipUploadBackend):
         # See avatar_url in avatar.py for URL.  (That code also handles the case
         # that users use gravatar.)
 
+    def get_avatar_url(self, hash_key):
+        bucket = settings.S3_AVATAR_BUCKET
+        # ?x=x allows templates to append additional parameters with &s
+        return u"https://%s.s3.amazonaws.com/%s?x=x" % (bucket, hash_key)
+
 ### Local
 
 def mkdirs(path):
@@ -299,6 +304,10 @@ class LocalUploadBackend(ZulipUploadBackend):
 
         resized_data = resize_avatar(image_data)
         write_local_file('avatars', email_hash+'.png', resized_data)
+
+    def get_avatar_url(self, hash_key):
+        # ?x=x allows templates to append additional parameters with &s
+        return u"/user_avatars/%s.png?x=x" % (hash_key)
 
 # Common and wrappers
 if settings.LOCAL_UPLOADS_DIR is not None:
