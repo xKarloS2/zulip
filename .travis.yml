@@ -2,8 +2,6 @@ dist: trusty
 before_install:
    - nvm install 0.10
 install:
-  # Disable Travis CI's built-in NVM installation
-  - mv ~/.nvm ~/.travis-nvm-disabled
   - pip install coveralls
   - tools/travis/setup-$TEST_SUITE
   - tools/clean-venv-cache --travis

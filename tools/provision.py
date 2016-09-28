@@ -25,8 +25,10 @@ SUPPORTED_PLATFORMS = {
     ],
 }
 
+NPM_VERSION = '3.9.3'
 PY2_VENV_PATH = "/srv/zulip-venv"
 PY3_VENV_PATH = "/srv/zulip-py3-venv"
+TRAVIS_NODE_PATH = os.path.join(os.environ['HOME'], 'node')
 VAR_DIR_PATH = os.path.join(ZULIP_PATH, 'var')
 LOG_DIR_PATH = os.path.join(VAR_DIR_PATH, 'log')
 UPLOAD_DIR_PATH = os.path.join(VAR_DIR_PATH, 'uploads')
@@ -79,9 +81,11 @@ UBUNTU_COMMON_APT_DEPENDENCIES = [
     "rabbitmq-server",
     "redis-server",
     "hunspell-en-us",
+    "nodejs",
+    "nodejs-legacy",
     "supervisor",
     "git",
-    "libssl-dev",
+    "npm",
     "yui-compressor",
     "wget",
     "ca-certificates",      # Explicit dependency in case e.g. wget is already installed
@@ -115,6 +119,29 @@ REPO_STOPWORDS_PATH = os.path.join(
 )
 
 LOUD = dict(_out=sys.stdout, _err=sys.stderr)
+
+def install_npm():
+    # type: () -> None
+    if not TRAVIS:
+        if subprocess_text_output(['npm', '--version']) != NPM_VERSION:
+            run(["sudo", "npm", "install", "-g", "npm@{}".format(NPM_VERSION)])
+
+        return
+
+    run(['mkdir', '-p', TRAVIS_NODE_PATH])
+
+    npm_exe = os.path.join(TRAVIS_NODE_PATH, 'bin', 'npm')
+    travis_npm = subprocess_text_output(['which', 'npm'])
+    if os.path.exists(npm_exe):
+        run(['sudo', 'ln', '-sf', npm_exe, travis_npm])
+
+    version = subprocess_text_output(['npm', '--version'])
+    if os.path.exists(npm_exe) and version == NPM_VERSION:
+        print("Using cached npm")
+        return
+
+    run(["npm", "install", "-g", "--prefix", TRAVIS_NODE_PATH, "npm@{}".format(NPM_VERSION)])
+    run(['sudo', 'ln', '-sf', npm_exe, travis_npm])
 
 
 def main():
@@ -197,12 +224,10 @@ def main():
         run(["tools/setup/postgres-init-test-db"])
         run(["tools/do-destroy-rebuild-test-database"])
         run(["python", "./manage.py", "compilemessages"])
-
-    # Here we install nvm, node, and npm.
-    run(["sudo", "tools/setup/install-node"])
-
-    # This is a wrapper around `npm install`, which we run last since
-    # it can often fail due to network issues beyond our control.
+    # Install the pinned version of npm.
+    install_npm()
+    # Run npm install last because it can be flaky, and that way one
+    # only needs to rerun `npm install` to fix the installation.
     try:
         # Hack: We remove `node_modules` as root to work around an
         # issue with the symlinks being improperly owned by root.
