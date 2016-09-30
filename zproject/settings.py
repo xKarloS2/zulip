@@ -695,6 +695,7 @@ JS_SPECS = {
             'js/blueslip.js',
             'third/bootstrap/js/bootstrap.js',
             'js/common.js',
+            'js/portico_nav.js',
             ),
         'output_filename':  'min/common.js'
     },
