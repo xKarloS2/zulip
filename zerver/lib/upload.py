@@ -267,6 +267,7 @@ class S3UploadBackend(ZulipUploadBackend):
         # ?x=x allows templates to append additional parameters with &s
         return u"https://%s.s3.amazonaws.com/%s%s?x=x" % (bucket, medium_suffix, hash_key)
 
+    # BLOCKING TODO: This needs to check if the avatar already exists
     def ensure_medium_avatar_image(self, email):
         # type: (text_type) -> None
         user_profile = get_user_profile_by_email(email)
