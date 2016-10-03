@@ -227,9 +227,9 @@ class StreamAdminTest(ZulipTestCase):
                                        {'new_name': ujson.dumps(u'नाम में क्या रक्खा हे'.encode('utf-8'))})
         self.assert_json_success(result)
         # While querying, system can handle unicode strings.
-        stream_name_old_uni_exists = get_stream(u'नया नाम',realm)
+        stream_name_old_uni_exists = get_stream(u'नया नाम', realm)
         self.assertFalse(stream_name_old_uni_exists)
-        stream_name_new_uni_exists = get_stream(u'नाम में क्या रक्खा हे',realm)
+        stream_name_new_uni_exists = get_stream(u'नाम में क्या रक्खा हे', realm)
         self.assertTrue(stream_name_new_uni_exists)
 
         # Test case to change name from one language to other.
@@ -237,7 +237,7 @@ class StreamAdminTest(ZulipTestCase):
             result = self.client_patch('/json/streams/नाम में क्या रक्खा हे',
                                        {'new_name': ujson.dumps(u'français'.encode('utf-8'))})
         self.assert_json_success(result)
-        stream_name_fr_exists = get_stream(u'français',realm)
+        stream_name_fr_exists = get_stream(u'français', realm)
         self.assertTrue(stream_name_fr_exists)
 
         # Test case to change name to mixed language name.
@@ -245,7 +245,7 @@ class StreamAdminTest(ZulipTestCase):
             result = self.client_patch('/json/streams/français',
                                        {'new_name': ujson.dumps(u'français name'.encode('utf-8'))})
         self.assert_json_success(result)
-        stream_name_mixed_exists = get_stream(u'français name',realm)
+        stream_name_mixed_exists = get_stream(u'français name', realm)
         self.assertTrue(stream_name_mixed_exists)
 
     def test_rename_stream_requires_realm_admin(self):
