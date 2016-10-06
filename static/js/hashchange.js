@@ -4,7 +4,20 @@ var exports = {};
 
 var expected_hash;
 var changing_hash = false;
+var ignore = {
+    flag: false,
+    prev: null
+};
 
+function should_ignore (hash) {
+    if (/^#*(settings|administration)/g.test(hash)) {
+        return true;
+    } else {
+        ignore.prev = hash;
+        ignore.flag = false;
+        return false;
+    }
+}
 // Some browsers zealously URI-decode the contents of
 // window.location.hash.  So we hide our URI-encoding
 // by replacing % with . (like MediaWiki).
@@ -172,10 +185,20 @@ function do_hashchange(from_reload) {
 }
 
 function hashchanged(from_reload) {
-    changing_hash = true;
-    var ret = do_hashchange(from_reload);
-    changing_hash = false;
-    return ret;
+    if (!ignore.flag && should_ignore(window.location.hash)) {
+        settings.setup_page();
+    } else if (!ignore.flag || !should_ignore(window.location.hash)) {
+        changing_hash = true;
+        var ret = do_hashchange(from_reload);
+        changing_hash = false;
+        return ret;
+    // once we unignore the hash, we have to set the hash back to what it was
+    // originally (eg. '#narrow/stream/Denmark' instead of '#settings'). We
+    // therefore ignore the hash change once more while we change it back for
+    // no iterruptions.
+    } else if (ignore.flag === 1) {
+        ignore.flag = false;
+    }
 }
 
 exports.initialize = function () {
@@ -185,6 +208,26 @@ exports.initialize = function () {
         hashchanged(false);
     });
     hashchanged(true);
+};
+
+exports.ignore = function (hash) {
+    if (hash) {
+      if (/^#*settings/g.test(window.location.hash)) {
+          ignore.prev = "#";
+      } else {
+          ignore.prev = window.location.hash;
+      }
+      window.location.hash = hash;
+    }
+    ignore.flag = true;
+};
+
+exports.unignore = function () {
+    window.location.hash = ignore.prev;
+    ignore.prev = null;
+    // set to ignore as a special case to programmatically unignore the next
+    // time.
+    ignore.flag = 1;
 };
 
 return exports;
