@@ -15,16 +15,74 @@ label {
     display: inline-block;
 }
 
-.center-block {
+.new-style .block {
+    display: block;
+}
+
+.new-style .center-block {
     margin: 0 auto;
 }
 
-.w-70 {
+.new-style .center {
+    text-align: center;
+}
+
+.new-style .w-70 {
     width: 70%;
+}
+
+.new-style .w-200 {
+    width: 200px;
+}
+
+.new-style .m-t-20 {
+    margin-top: 20px;
+}
+
+.new-style .grid label {
+    width: 200px;
+}
+
+.new-style .grid .warning {
+    display: inline-block;
+    vertical-align: top;
+
+    width: 150px;
+    padding: 5px 10px;
+
+    text-align: left;
+}
+
+.new-style .warning #pw_strength {
+    width: 140px;
+    height: 8px;
+    margin: 6px 0px 0px 0px;
+}
+
+/* this is because the input[type=text] is also 200px wide but has
+   12px of padding and 2px worth of borders. These don't apply to
+   buttons however. */
+.new-style .input-size {
+    width: 214px;
+}
+
+.user-avatar-section {
+    float: right;
+    background-color: #fff;
+    margin: 20px 0px;
+    padding: 20px;
 }
 
 .light {
     font-weight: 300;
+}
+
+.box-shadow {
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+}
+
+.bg-white {
+    background-color: #FFF;
 }
 
 .padded-container {
@@ -53,12 +111,21 @@ td .button {
 }
 
 .settings-section {
+    display: none;
     background-color: #fafafa;
     border-radius: 2px;
     margin: 20px;
     overflow: hidden;
     border: 1px solid #dfdfdf;
     border-top: 5px solid #dfdfdf;
+}
+
+#administration .settings-section {
+    display: block;
+}
+
+.settings-section.show {
+    display: block;
 }
 
 .settings-section .settings-section-title {
@@ -405,3 +472,209 @@ input[type=checkbox].inline-block {
 .open-user-form {
     min-width: initial !important;
 }
+
+#user-settings-avatar {
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    width: 200px;
+    height: 200px;
+}
+
+/* -- new settings overlay -- */
+#settings_overlay_container {
+    pointer-events: none;
+    opacity: 0;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    background-color: rgba(32,32,32,0.8);
+    z-index: 102;
+
+    transition: all 0.2s ease;
+}
+
+#settings_overlay_container.show {
+    pointer-events: all;
+    opacity: 1;
+}
+
+#settings_overlay_container.show #settings_page {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+
+#settings_page {
+    -webkit-transform: scale(0.5);
+    transform: scale(0.5);
+
+    background-color: rgba(0,0,0,0.8);
+    z-index: 102;
+}
+#settings_page {
+    height: 95vh;
+    width: 97vw;
+    margin: 2.5vh 1.5vw;
+    background-color: #fff;
+    overflow: hidden;
+    border-radius: 4px;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    transition: transform 0.2s ease;
+}
+
+#settings_page .sidebar {
+    float: left;
+    position: relative;
+    width: 250px;
+    height: 100%;
+    min-height: 500px;
+    overflow-y: auto;
+    background-color: #edefef;
+}
+
+#settings_page .content-wrapper {
+    position: relative;
+    float: left;
+    width: calc(100% - 250px);
+    height: 100%;
+}
+
+#settings_page .content-wrapper .settings-header {
+    width: 100%;
+    height: 60px;
+    border-bottom: 1px solid #DDD;
+}
+
+#settings_page .content-wrapper #settings_content {
+    width: 100%;
+    height: calc(100% - 60px);
+
+    float: left;
+    height: 100%;
+    overflow-y: auto;
+}
+
+#settings_page .sidebar .header {
+    height: auto;
+    position: relative;
+    width: calc(100% - 20px);
+    padding: 10px;
+    text-align: center;
+    text-transform: uppercase;
+
+    background-color: #edefef;
+    border-bottom: 1px solid #DDD;
+}
+
+#settings_page .settings-header {
+    padding-top: 5px;
+    color: #555;
+}
+
+#settings_page .settings-header h1 {
+    display: inline-block;
+    margin-left: 20px;
+    font-size: 1.5rem;
+}
+
+#settings_page .settings-header .exit {
+    float: right;
+    margin-right: 20px;
+    margin-top: 15px;
+}
+
+input[type=text]#settings_search {
+    width: calc(100% - 10px - 2px);
+    margin: 0px;
+
+    color: #555;
+    font-size: 0.9rem;
+    padding: 3px 5px;
+    outline: none;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+}
+
+input[type=text]:focus#settings_search {
+    box-shadow: none;
+    border: 1px solid #BBB;
+
+    border-bottom: 1px solid #DDD;
+}
+
+input[type=text]#settings_search {
+    width: calc(100% - 10px - 2px);
+    margin: 0px;
+}
+
+#settings_page .sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#settings_page .sidebar li {
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#settings_page .sidebar li.no-border .text {
+    border-color: transparent;
+}
+
+#settings_page .sidebar li.active {
+    background-color: #21cbc2;
+    color: #fff;
+}
+
+#settings_page .sidebar li.active .text {
+    border-bottom: 1px solid transparent;
+}
+
+.sidebar li .text,
+.sidebar li .icon {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.sidebar li .text {
+    width: calc(100% - 55px);
+    padding: 10px 12px 10px 0px;
+    border-bottom: 1px solid #DDD;
+}
+
+.sidebar li .icon {
+    width: 18px;
+    height: 18px;
+    margin: 10px 10px;
+
+    font-size: 1.4em;
+
+    color: #21cbc2;
+
+    background-image: url(../assets/icon.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.sidebar li.active .icon {
+    -webkit-filter: brightness(10);
+}
+
+.sidebar li:last-of-type .text {
+    border-bottom: none;
+}
+
+.sidebar .sidebar-bottom-anchor {
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+}
+/* -- end new settings overlay -- */
