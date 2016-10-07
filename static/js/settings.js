@@ -147,8 +147,12 @@ function _setup_page() {
         });
     }
 
+    $("#settings_overlay_container").addClass("show");
+    hashchange.ignore("settings/your-account");
+
     var settings_tab = templates.render('settings_tab', {page_params: page_params});
-    $("#settings").html(settings_tab);
+
+    $("#settings_content").html(settings_tab);
     $("#settings-status").hide();
     $("#notify-settings-status").hide();
     $("#display-settings-status").hide();
