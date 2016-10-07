@@ -7,6 +7,10 @@ function do_narrow_action(action) {
     return true;
 }
 
+function is_settings_page () {
+  return (/^#*settings/g).test(window.location.hash);
+}
+
 var actions_dropdown_hotkeys = [
     'down_arrow',
     'up_arrow',
@@ -192,6 +196,23 @@ function process_hotkey(e) {
         return true;
     }
 
+    if (is_settings_page()) {
+        if (event_name === 'up_arrow') {
+            $(e.target.previousElementSibling).focus().click();
+            return true;
+        } else if (event_name === 'down_arrow') {
+            $(e.target.nextElementSibling).focus().click();
+            return true;
+        } else if (event_name === 'enter') {
+            $(e.target).click();
+            return true;
+        } else if (event_name === 'escape') {
+            $("#settings_overlay_container .exit").click();
+            return true;
+        }
+        return false;
+    }
+
     // Process hotkeys specially when in an input, select, textarea, or send button
     if ($('input:focus,select:focus,textarea:focus,#compose-send-button:focus').length > 0) {
         if (event_name === 'escape') {
@@ -235,7 +256,10 @@ function process_hotkey(e) {
         }
 
         if (event_name === 'enter') {
-            if (activity.searching()) {
+            if (is_settings_page()) {
+                $(e.target).click();
+                return true;
+            } else if (activity.searching()) {
                 activity.blur_search();
                 return true;
             } else if (stream_list.searching()) {
@@ -267,6 +291,7 @@ function process_hotkey(e) {
     if ($('a:focus,button:focus').length > 0 && event_name === 'enter') {
         return false;
     }
+    var key = e.keyCode || e.which;
 
     // Shortcuts that don't require a message
     switch (event_name) {
@@ -332,11 +357,17 @@ function process_hotkey(e) {
             navigate.to_end();
             return true;
         case 'page_up':
-            navigate.page_up();
-            return true;
+            if (!is_settings_page()) {
+                navigate.page_up();
+                return true;
+            }
+            break;
         case 'page_down':
-            navigate.page_down();
-            return true;
+            if (!is_settings_page()) {
+                navigate.page_down();
+                return true;
+            }
+            break;
     }
 
     // Shortcuts that operate on a message

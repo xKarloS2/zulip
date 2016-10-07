@@ -256,6 +256,7 @@ $(function () {
     $('body').on('click', '.logout_button', function (e) {
         $('#logout_form').submit();
     });
+
     $('.restart_get_events_button').click(function (e) {
         server_events.restart_get_events({dont_block: true});
     });
@@ -452,6 +453,28 @@ $(function () {
     $('a.dropdown-toggle, .dropdown-menu a').on('touchstart', function (e) {
         e.stopPropagation();
     });
+
+    (function () {
+        $("#settings_overlay_container .sidebar").on("click", "li[data-section]", function () {
+            var $this = $(this);
+            var section = $this.data("section");
+
+            $(".sidebar li").removeClass("active no-border");
+            $this.addClass("active");
+            $this.prev().addClass("no-border");
+
+            window.location.hash = "settings/" + section;
+            $(".settings-section").removeClass("show");
+            $(".settings-section[data-name='" + section + "']").addClass("show");
+        });
+
+        $("#settings_overlay_container").on("click", function (e) {
+            var $target = $(e.target);
+            if ($target.is(".exit")) {
+                settings.hide_settings_page();
+            }
+        });
+    }());
 });
 
 return exports;
