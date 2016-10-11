@@ -233,7 +233,9 @@ def do_setup_virtualenv(venv_path, requirements_file, virtualenv_args):
     activate_this = os.path.join(venv_path, "bin", "activate_this.py")
     exec(open(activate_this).read(), {}, dict(__file__=activate_this)) # type: ignore # https://github.com/python/mypy/issues/1577
 
-    run(["pip", "install", "-U", "setuptools"])
-    run(["pip", "install", "--upgrade", "pip", "wheel"])
+    # We hardcode the version of setuptools because 28.3.0 contains a
+    # regression which causes our `--install-option` argument to be
+    # passed to all setup.py commands, not just the `talon` one.
+    run(["pip", "install", "--no-deps", "--upgrade", "setuptools==27.3.1", "pip", "wheel", "pyOpenSSL"])
     run(["pip", "install", "--no-deps", "--requirement", requirements_file])
     run(["sudo", "chmod", "-R", "a+rX", venv_path])
