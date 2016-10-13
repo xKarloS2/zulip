@@ -422,10 +422,14 @@ function _setup_page() {
         });
     });
 
+    $("#default_language_modal [data-dismiss]").click(function (e) {
+      $("#default_language_modal").fadeOut(300);
+    });
+
     $("#default_language_modal .language").click(function (e) {
         e.preventDefault();
         e.stopPropagation();
-        $('#default_language_modal').modal('hide');
+        $('#default_language_modal').fadeOut(300);
 
         var data = {};
         var $link = $(e.target).closest("a[data-code]");
@@ -454,7 +458,7 @@ function _setup_page() {
     $('#default_language').on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        $('#default_language_modal').modal('show');
+        $('#default_language_modal').show().attr('aria-hidden', false);
     });
 
     $("#user_deactivate_account_button").on('click', function (e) {
