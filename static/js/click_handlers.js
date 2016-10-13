@@ -447,6 +447,17 @@ $(function () {
         }
     });
 
+    (function () {
+        $(".sidebar").on("click", "li[data-section]", function () {
+            var $this = $(this);
+            var section = $this.data("section");
+
+            $(".sidebar li").removeClass("active no-border");
+            $this.addClass("active");
+            $this.prev().addClass("no-border");
+        });
+    }());
+
     // Workaround for Bootstrap issue #5900, which basically makes dropdowns
     // unclickable on mobile devices.
     // https://github.com/twitter/bootstrap/issues/5900
