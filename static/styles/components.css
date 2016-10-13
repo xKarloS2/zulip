@@ -93,10 +93,15 @@
 .new-style label.checkbox {
     padding: 0px;
     display: inline-block;
+    vertical-align: top;
 }
 
 .new-style label.checkbox input[type=checkbox] {
     display: none;
+}
+
+.new-style label.checkbox + label {
+    width: calc(100% - 40px);
 }
 
 .new-style label.checkbox input[type=checkbox] ~ span {
@@ -108,20 +113,16 @@
     height: 20px;
     width: 20px;
 
-    font-weight: 200;
-    line-height: 0.85;
-    font-size: 1.4rem;
+    font-weight: 300;
+    line-height: 0.8;
+    font-size: 1.3rem;
     text-align: center;
     background-color: #24cac2;
     color: #fff;
 
-    border-radius: 20px;
+    border-radius: 4px;
 
     cursor: pointer;
-}
-
-.new-style label.checkbox input[type=checkbox] ~ span::after {
-    content: "x";
 }
 
 .new-style label.checkbox input[type=checkbox]:checked ~ span {
@@ -131,4 +132,8 @@
     background-size: 70%;
     background-position: 40% 50%;
     background-repeat: no-repeat;
+}
+
+.new-style a.no-style {
+    color: inherit;
 }

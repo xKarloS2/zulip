@@ -73,6 +73,10 @@ label {
     padding: 20px;
 }
 
+.user-avatar-section .inline-block {
+    display: block;
+}
+
 .light {
     font-weight: 300;
 }
@@ -248,7 +252,6 @@ input[type=checkbox].inline-block {
 .remove-alert-word {
     margin-top: 1px;
 }
-
 @media (max-width: 480px) {
 
     #pw_strength {
@@ -490,6 +493,7 @@ input[type=checkbox].inline-block {
     left: 0;
     width: 100vw;
     height: 100vh;
+    overflow: auto;
 
     background-color: rgba(32,32,32,0.8);
     z-index: 102;
@@ -556,7 +560,6 @@ input[type=checkbox].inline-block {
     height: calc(100% - 60px);
 
     float: left;
-    height: 100%;
     overflow-y: auto;
 }
 
@@ -678,3 +681,29 @@ input[type=text]#settings_search {
     bottom: 0px;
 }
 /* -- end new settings overlay -- */
+
+@media (max-width: 1215px) {
+    .user-avatar-section {
+        float: none;
+        display: inline-block;
+    }
+
+    .user-avatar-section .inline-block {
+        display: inline-block;
+        vertical-align: top;
+        margin: 0px 10px;
+    }
+}
+
+@media (max-width: 856px) {
+    .user-avatar-section .inline-block {
+        display: block;
+        margin: 0;
+    }
+}
+
+@media (max-width: 953px) {
+    #settings_content .warning {
+        display: none;
+    }
+}
