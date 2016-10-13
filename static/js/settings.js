@@ -132,6 +132,9 @@ function _setup_page() {
     // at page load. This promise will be resolved with a list of streams after
     // the first settings page load. build_stream_list then adds a callback to
     // the promise, which in most cases will already be resolved.
+
+    var tab = window.location.hash.split(/\//)[1] || "your-account";
+
     if (_streams_deferred.state() !== "resolved") {
         channel.get({
             url: '/json/streams',
@@ -147,9 +150,6 @@ function _setup_page() {
         });
     }
 
-    $("#settings_overlay_container").addClass("show");
-    hashchange.ignore("settings/your-account");
-
     var settings_tab = templates.render('settings_tab', {page_params: page_params});
 
     $("#settings_content").html(settings_tab);
@@ -164,6 +164,8 @@ function _setup_page() {
     $("#get_api_key_box").hide();
     $("#show_api_key_box").hide();
     $("#api_key_button_box").show();
+
+    exports.launch_page(tab);
 
     function clear_password_change() {
         // Clear the password boxes so that passwords don't linger in the DOM
@@ -757,8 +759,28 @@ function _setup_page() {
     });
 }
 
-exports.setup_page = function () {
+exports.setup_page = function (tab) {
     i18n.ensure_i18n(_setup_page);
+};
+
+exports.hide_settings_page = function () {
+    $("#settings_overlay_container").removeClass("show");
+    hashchange.unignore();
+};
+
+exports.launch_page = function (tab) {
+    hashchange.ignore("settings/" + tab);
+    tab = window.location.hash.split(/\//)[1];
+
+    $("#settings_overlay_container").addClass("show");
+
+    // show the proper section, hide the rest.
+    $("#settings_overlay_container .settings-section").removeClass("show");
+    $(".settings-section[data-name='" + tab + "']").addClass("show");
+
+    // show the proper list item as highlighted.
+    $("#settings_overlay_container li.active").removeClass("active");
+    $("#settings_overlay_container li[data-section='" + tab + "']").addClass("active");
 };
 
 return exports;

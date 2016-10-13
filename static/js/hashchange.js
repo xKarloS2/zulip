@@ -6,11 +6,12 @@ var expected_hash;
 var changing_hash = false;
 var ignore = {
     flag: false,
-    prev: null
+    prev: null,
+    last: null
 };
 
 function should_ignore (hash) {
-    if (/^#*(settings|administration)/g.test(hash)) {
+    if (/^#*(settings)/g.test(hash)) {
         return true;
     } else {
         ignore.prev = hash;
@@ -186,8 +187,13 @@ function do_hashchange(from_reload) {
 
 function hashchanged(from_reload) {
     if (!ignore.flag && should_ignore(window.location.hash)) {
+        var tab = window.location.hash.split(/\//)[1];
         settings.setup_page();
-    } else if (!ignore.flag || !should_ignore(window.location.hash)) {
+    } else if (!should_ignore(window.location.hash)) {
+        ignore.flag = false;
+        if (from_reload !== true) {
+            settings.hide_settings_page();
+        }
         changing_hash = true;
         var ret = do_hashchange(from_reload);
         changing_hash = false;
@@ -217,12 +223,14 @@ exports.ignore = function (hash) {
       } else {
           ignore.prev = window.location.hash;
       }
-      window.location.hash = hash;
+
+      window.location.hash = ignore.last || hash;
     }
     ignore.flag = true;
 };
 
 exports.unignore = function () {
+    ignore.last = window.location.hash;
     window.location.hash = ignore.prev;
     ignore.prev = null;
     // set to ignore as a special case to programmatically unignore the next
