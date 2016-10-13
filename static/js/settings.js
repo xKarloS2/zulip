@@ -769,8 +769,10 @@ exports.hide_settings_page = function () {
 };
 
 exports.launch_page = function (tab) {
+    var $li = $("#settings_overlay_container li[data-section]"),
+        $active_tab = $("#settings_overlay_container li[data-section='" + tab + "']");
+
     hashchange.ignore("settings/" + tab);
-    tab = window.location.hash.split(/\//)[1];
 
     $("#settings_overlay_container").addClass("show");
 
@@ -779,8 +781,10 @@ exports.launch_page = function (tab) {
     $(".settings-section[data-name='" + tab + "']").addClass("show");
 
     // show the proper list item as highlighted.
-    $("#settings_overlay_container li.active").removeClass("active");
-    $("#settings_overlay_container li[data-section='" + tab + "']").addClass("active");
+    $li.removeClass("active");
+    $("#settings_overlay_container li[data-section]").removeClass("no-border");
+    $active_tab.addClass("active")
+        .prev().addClass("no-border");
 };
 
 return exports;

@@ -18,6 +18,7 @@ GENERIC_KEYWORDS = [
     'show',
     'notdisplayed',
     'popover',
+    'no-border',
     'success',
     'text-error',
     'warning',

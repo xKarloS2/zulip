@@ -6,8 +6,7 @@ var expected_hash;
 var changing_hash = false;
 var ignore = {
     flag: false,
-    prev: null,
-    last: null
+    prev: null
 };
 
 function should_ignore (hash) {
@@ -224,13 +223,12 @@ exports.ignore = function (hash) {
           ignore.prev = window.location.hash;
       }
 
-      window.location.hash = ignore.last || hash;
+      window.location.hash = hash;
     }
     ignore.flag = true;
 };
 
 exports.unignore = function () {
-    ignore.last = window.location.hash;
     window.location.hash = ignore.prev;
     ignore.prev = null;
     // set to ignore as a special case to programmatically unignore the next
