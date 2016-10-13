@@ -13,14 +13,14 @@ casper.then(function () {
     });
 });
 
-casper.waitUntilVisible('a[href^="#settings"]', function () {
+casper.waitForSelector('a[data-popup^="settings"]', function () {
     casper.test.info('Settings page');
-    casper.click('a[href^="#settings"]');
+    casper.click('a[data-popup="settings"]');
 });
 
 casper.waitUntilVisible("#settings-change-box", function () {
     casper.test.assertUrlMatch(/^http:\/\/[^\/]+\/#settings/, 'URL suggests we are on settings page');
-    casper.test.assertExists('#settings.tab-pane.active', 'Settings page is active');
+    casper.test.assertExists('#settings', 'Settings page is active');
 
     casper.test.assertNotVisible("#pw_change_controls");
 
@@ -47,7 +47,7 @@ casper.waitUntilVisible("#pw_change_controls", function () {
 
 casper.waitUntilVisible('#settings-status', function () {
     casper.test.assertSelectorHasText('#settings-status', 'Updated settings!');
-
+    casper.click('[data-section="your-bots"]');
     casper.click('#api_key_button');
 });
 
@@ -151,6 +151,7 @@ casper.waitForSelector('#create_alert_word_form', function () {
 
 casper.then(function change_default_language() {
     casper.test.info('Changing the default language');
+    casper.click('[data-section="display-settings"]');
     casper.waitForSelector('#default_language');
 });
 
@@ -189,6 +190,7 @@ casper.waitForSelector("#settings-change-box", function check_url_preference() {
         return document.documentElement.lang;
     }, 'de');
     casper.test.info("Changing language back to English.");
+    casper.click('[data-section="display-settings"]');
 });
 
 casper.thenClick('#default_language');
