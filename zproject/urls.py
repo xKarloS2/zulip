@@ -37,6 +37,7 @@ i18n_urls = [
     url(r'^accounts/login/sso/$', 'zerver.views.auth.remote_user_sso', name='login-sso'),
     url(r'^accounts/login/jwt/$', 'zerver.views.auth.remote_user_jwt', name='login-jwt'),
     url(r'^accounts/login/google/$', 'zerver.views.auth.start_google_oauth2'),
+    url(r'^accounts/login/google/send/$', 'zerver.views.auth.send_oauth_request_to_google'),
     url(r'^accounts/login/google/done/$', 'zerver.views.auth.finish_google_oauth2'),
     url(r'^accounts/login/local/$', 'zerver.views.auth.dev_direct_login'),
     # We have two entries for accounts/login to allow reverses on the Django
