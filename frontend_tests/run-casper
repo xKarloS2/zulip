@@ -96,7 +96,7 @@ def run_tests(realms_have_subdomains, files):
         remote_debug = "--remote-debugger-port=7777 --remote-debugger-autorun=yes"
 
     # Run this not through the shell, so that we have the actual PID.
-    server = subprocess.Popen(('tools/run-dev.py', '--test'),
+    server = subprocess.Popen(('tools/run-dev-tornado.py', '--test'),
                               stdout=log, stderr=log)
 
     ret = 1
