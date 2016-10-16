@@ -231,7 +231,10 @@ Filter.parse = function (str) {
             }
             operand = decodeOperand(parts.join(':'), operator);
 
-           // Filter.operator_to_prefix() checks if the operator is known
+            // We use Filter.operator_to_prefix() checks if the
+            // operator is known.  If it is not known, then we treat
+            // it as a search for the given string (which may contain
+            // a `:`), not as a search operator.
             if (Filter.operator_to_prefix(operator, negated) === '') {
                 operator = 'search';
                 operand = token;
