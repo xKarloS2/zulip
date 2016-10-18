@@ -186,7 +186,6 @@ function do_hashchange(from_reload) {
 
 function hashchanged(from_reload) {
     if (!ignore.flag && should_ignore(window.location.hash)) {
-        var tab = window.location.hash.split(/\//)[1];
         settings.setup_page();
     } else if (!should_ignore(window.location.hash)) {
         ignore.flag = false;

@@ -133,7 +133,12 @@ function _setup_page() {
     // the first settings page load. build_stream_list then adds a callback to
     // the promise, which in most cases will already be resolved.
 
-    var tab = window.location.hash.split(/\//)[1] || "your-account";
+    var hash_sequence = window.location.hash.split(/\//);
+    var tab = false;
+    if (/#*settings/.test(hash_sequence[0])) {
+        tab = hash_sequence[1];
+    }
+    tab = tab || "your-account";
 
     if (_streams_deferred.state() !== "resolved") {
         channel.get({
