@@ -107,17 +107,19 @@
 .new-style label.checkbox input[type=checkbox] ~ span {
     display: inline-block;
     vertical-align: middle;
+    position: relative;
+    top: -2px;
 
     padding: 1px;
     margin: 0px 10px 0px 0px;
-    height: 20px;
-    width: 20px;
+    height: 16px;
+    width: 16px;
 
     font-weight: 300;
     line-height: 0.8;
     font-size: 1.3rem;
     text-align: center;
-    background-color: #24cac2;
+    border: 2px solid #24cac2;
     color: #fff;
 
     border-radius: 4px;
@@ -128,9 +130,9 @@
 .new-style label.checkbox input[type=checkbox]:checked ~ span {
     color: transparent;
 
-    background-image: url(/static/images/checkbox.png);
-    background-size: 70%;
-    background-position: 40% 50%;
+    background-image: url(/static/images/checkbox-green.png);
+    background-size: 85%;
+    background-position: 50% 50%;
     background-repeat: no-repeat;
 }
 
