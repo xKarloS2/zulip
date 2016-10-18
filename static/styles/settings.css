@@ -517,7 +517,9 @@ input[type=checkbox].inline-block {
 
     background-color: rgba(0,0,0,0.8);
     z-index: 102;
+    min-height: 300px;
 }
+
 #settings_page {
     height: 95vh;
     width: 97vw;
@@ -537,7 +539,7 @@ input[type=checkbox].inline-block {
     position: relative;
     width: 250px;
     height: 100%;
-    min-height: 500px;
+    min-height: 300px;
     overflow-y: auto;
     background-color: #edefef;
 }
