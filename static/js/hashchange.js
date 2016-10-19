@@ -187,6 +187,7 @@ function do_hashchange(from_reload) {
 function hashchanged(from_reload) {
     if (!ignore.flag && should_ignore(window.location.hash)) {
         settings.setup_page();
+        admin.setup_page();
     } else if (!should_ignore(window.location.hash)) {
         ignore.flag = false;
         if (from_reload !== true) {

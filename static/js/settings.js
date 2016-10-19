@@ -776,14 +776,15 @@ exports.hide_settings_page = function () {
 exports.launch_page = function (tab) {
     var $li = $("#settings_overlay_container li[data-section]"),
         $active_tab = $("#settings_overlay_container li[data-section='" + tab + "']");
+    var sel = "[data-name='" + tab + "']";
 
     hashchange.ignore("settings/" + tab);
 
     $("#settings_overlay_container").addClass("show");
 
     // show the proper section, hide the rest.
-    $("#settings_overlay_container .settings-section").removeClass("show");
-    $(".settings-section[data-name='" + tab + "']").addClass("show");
+    $(".settings-section, .settings-wrapper").removeClass("show");
+    $(".settings-section" + sel + ", .settings-wrapper" + sel).addClass("show");
 
     // show the proper list item as highlighted.
     $li.removeClass("active");
