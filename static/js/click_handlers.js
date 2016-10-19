@@ -487,6 +487,11 @@ $(function () {
                 settings.hide_settings_page();
             }
         });
+
+        $(".tabs .ind-tab").click(function () {
+            $(".tabs .ind-tab").removeClass("selected");
+            $(this).addClass("selected");
+        });
     }());
 });
 
