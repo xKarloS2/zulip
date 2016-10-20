@@ -10,13 +10,7 @@ var ignore = {
 };
 
 function should_ignore (hash) {
-    if (/^#*(settings)/g.test(hash)) {
-        return true;
-    } else {
-        ignore.prev = hash;
-        ignore.flag = false;
-        return false;
-    }
+    return (/^#*(settings|administration)/g.test(hash));
 }
 // Some browsers zealously URI-decode the contents of
 // window.location.hash.  So we hide our URI-encoding
@@ -184,12 +178,35 @@ function do_hashchange(from_reload) {
     return false;
 }
 
+// -- -- -- -- -- -- READ THIS BEFORE TOUCHING ANYTHING BELOW -- -- -- -- -- -- //
+// HOW THE HASH CHANGE MECHANISM WORKS:
+// When going from a normal view (eg. `narrow/is/private`) to a settings panel
+// (eg. `settings/your-bots`) it should trigger the `should_ignore` function and
+// return `true` for the current state -- we want to ignore hash changes from
+// within the settings page. The previous hash however should return `false` as it
+// was outside of the scope of settings.
+// there is then an `exit_settings` function that allows the hash to change exactly
+// once without triggering any events. This allows the hash to reset back from
+// a settings page to the previous view available before the settings page
+// (eg. narrow/is/private). This saves the state, scroll position, and makes the
+// hash change functionally inert.
+// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- - -- //
+
 function hashchanged(from_reload) {
-    if (!ignore.flag && should_ignore(window.location.hash)) {
-        settings.setup_page();
-        admin.setup_page();
-    } else if (!should_ignore(window.location.hash)) {
-        ignore.flag = false;
+    var old_hash;
+    if (from_reload !== true) {
+        old_hash = "#" + from_reload.oldURL.split(/#/).slice(1).join("");
+        ignore.last = old_hash;
+    }
+
+    if (should_ignore(window.location.hash)) {
+        if (!should_ignore(old_hash)) {
+            settings.setup_page();
+            admin.setup_page();
+
+            ignore.prev = old_hash;
+        }
+    } else if (!should_ignore(window.location.hash) && !ignore.flag) {
         if (from_reload !== true) {
             settings.hide_settings_page();
         }
@@ -201,7 +218,7 @@ function hashchanged(from_reload) {
     // originally (eg. '#narrow/stream/Denmark' instead of '#settings'). We
     // therefore ignore the hash change once more while we change it back for
     // no iterruptions.
-    } else if (ignore.flag === 1) {
+    } else if (ignore.flag) {
         ignore.flag = false;
     }
 }
@@ -215,25 +232,11 @@ exports.initialize = function () {
     hashchanged(true);
 };
 
-exports.ignore = function (hash) {
-    if (hash) {
-      if (/^#*settings/g.test(window.location.hash)) {
-          ignore.prev = "#";
-      } else {
-          ignore.prev = window.location.hash;
-      }
-
-      window.location.hash = hash;
+exports.exit_settings = function () {
+    if (should_ignore(window.location.hash)) {
+        ignore.flag = true;
+        window.location.hash = ignore.prev || "#";
     }
-    ignore.flag = true;
-};
-
-exports.unignore = function () {
-    window.location.hash = ignore.prev;
-    ignore.prev = null;
-    // set to ignore as a special case to programmatically unignore the next
-    // time.
-    ignore.flag = 1;
 };
 
 return exports;

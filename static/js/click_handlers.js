@@ -475,7 +475,11 @@ $(function () {
             $this.addClass("active");
             $this.prev().addClass("no-border");
 
-            window.location.hash = "settings/" + section;
+            if ($this.hasClass("admin")) {
+                window.location.hash = "administration/" + section;
+            } else {
+                window.location.hash = "settings/" + section;
+            }
 
             $(".settings-section, .settings-wrapper").removeClass("show");
             $(".settings-section" + sel + ", .settings-wrapper" + sel).addClass("show");
@@ -485,13 +489,27 @@ $(function () {
             var $target = $(e.target);
             if ($target.is(".exit")) {
                 settings.hide_settings_page();
+                hashchange.exit_settings();
             }
         });
 
-        $(".tabs .ind-tab").click(function () {
-            $(".tabs .ind-tab").removeClass("selected");
-            $(this).addClass("selected");
-        });
+        (function () {
+            var $parent = $("#settings_overlay_container .sidebar .tab-switcher"),
+                $tabs = $parent.find(".ind-tab");
+            $tabs.click(function () {
+                $tabs.removeClass("selected");
+                $(this).addClass("selected");
+
+                $(".sidebar li").hide();
+                if ($(this).data("name") === "admin") {
+                    $("li.admin").show();
+                    $("li[data-section='organization-settings']").click();
+                } else {
+                    $("li:not(.admin)").show();
+                    $("li[data-section='your-account']").click();
+                }
+            });
+        }());
     }());
 });
 
