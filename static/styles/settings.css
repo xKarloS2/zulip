@@ -548,40 +548,16 @@ input[type=checkbox].inline-block {
     min-height: 550px;
     overflow-y: auto;
     background-color: #edefef;
+    border-top-left-radius: 4px;
 }
 
-#settings_page .sidebar .tabs {
-    margin-top: 5px;
-}
-
-#settings_page .sidebar .tabs .ind-tab {
-    position: relative;
-    display: inline-block;
-    width: 92px;
+#settings_page .sidebar .tab-container {
+    border-right: 1px solid #edefef;
+    background-color: #fff;
     padding: 10px;
-    margin: 0px -5px;
-    
-    text-align: center;
-    background-color: #FAFAFA;
-
-    border-radius: 15px 15px 0px 0px;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-#settings_page .sidebar .tabs .ind-tab.first {
-    margin-left: 17px;
-}
-
-#settings_page .sidebar .tabs .ind-tab.selected {
-    background-color: #888;
-    color: #fff;
-    z-index: 2;
 }
 
 #settings_page .sidebar .settings-list {
-    box-shadow: 0px 0px 20px rgba(0,0,0,0.2);
     position: relative;
     z-index: 3;
 }
@@ -682,7 +658,7 @@ input[type=text]#settings_search {
 }
 
 #settings_page .sidebar li.admin.active {
-    background-color: #e87076;
+    background-color: #3686c3;
 }
 
 #settings_page .sidebar li.active .text {
@@ -715,8 +691,12 @@ input[type=text]#settings_search {
     background-repeat: no-repeat;
 }
 
+.sidebar li.admin {
+    display: none;
+}
+
 .sidebar li.admin .icon {
-    color: #e87076;
+    color: #3686c3;
 }
 
 .sidebar li.active .icon {
