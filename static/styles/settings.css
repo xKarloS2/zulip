@@ -612,6 +612,10 @@ input[type=checkbox].inline-block {
     margin-top: 15px;
 }
 
+#deactivation_user_modal.fade.in {
+    top: calc(50% - 120px);
+}
+
 input[type=text]#settings_search {
     width: calc(100% - 10px - 2px);
     margin: 0px;

@@ -157,7 +157,7 @@ function _setup_page() {
 
     var settings_tab = templates.render('settings_tab', {page_params: page_params});
 
-    $("#settings_content").html(settings_tab);
+    $("#settings_content .settings-box").html(settings_tab);
     $("#settings-status").hide();
     $("#notify-settings-status").hide();
     $("#display-settings-status").hide();
@@ -786,15 +786,7 @@ exports.launch_page = function (tab) {
 
     $("#settings_overlay_container").addClass("show");
 
-    // show the proper section, hide the rest.
-    $(".settings-section, .settings-wrapper").removeClass("show");
-    $(".settings-section" + sel + ", .settings-wrapper" + sel).addClass("show");
-
-    // show the proper list item as highlighted.
-    $li.removeClass("active");
-    $("#settings_overlay_container li[data-section]").removeClass("no-border");
-    $active_tab.addClass("active")
-        .prev().addClass("no-border");
+    $active_tab.click();
 };
 
 return exports;

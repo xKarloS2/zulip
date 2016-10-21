@@ -8,7 +8,7 @@ function do_narrow_action(action) {
 }
 
 function is_settings_page () {
-  return (/^#*settings/g).test(window.location.hash);
+  return (/^#*(settings|administration)/g).test(window.location.hash);
 }
 
 var actions_dropdown_hotkeys = [

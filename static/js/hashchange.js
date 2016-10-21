@@ -201,8 +201,8 @@ function hashchanged(from_reload) {
 
     if (should_ignore(window.location.hash)) {
         if (!should_ignore(old_hash)) {
-            settings.setup_page();
             admin.setup_page();
+            settings.setup_page();
 
             ignore.prev = old_hash;
         }

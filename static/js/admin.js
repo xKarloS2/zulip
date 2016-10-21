@@ -9,6 +9,8 @@ exports.show_or_hide_menu_item = function () {
         item.show();
     } else {
         item.hide();
+        $(".ind-tab[data-name='admin']").addClass("disabled");
+        $(".settings-list li.admin").hide();
     }
 };
 
@@ -118,7 +120,7 @@ function get_non_default_streams_names(streams_data) {
 }
 
 exports.update_default_streams_table = function () {
-    if ($('#administration').hasClass('active')) {
+    if (/#*administration/.test(window.location.hash)) {
         $("#admin_default_streams_table").expectOne().find("tr.default_stream_row").remove();
         populate_default_streams(page_params.realm_default_streams);
     }
@@ -195,8 +197,9 @@ function _setup_page() {
         language_list: page_params.language_list,
         realm_default_language: page_params.realm_default_language
     };
+
     var admin_tab = templates.render('admin_tab', options);
-    $("#administration").html(admin_tab);
+    $("#settings_content .administration-box").html(admin_tab);
     $("#administration-status").expectOne().hide();
     $("#admin-realm-name-status").expectOne().hide();
     $("#admin-realm-restricted-to-domain-status").expectOne().hide();
@@ -646,15 +649,22 @@ function _setup_page() {
                 }
             },
             success: function () {
-                var button = row.find("button.deactivate");
+                var button = row.find("button.deactivate"),
+                    deactivated_users_table = $("#admin_deactivated_users_table");
                 button.prop("disabled", false);
                 button.addClass("btn-warning");
                 button.removeClass("btn-danger");
                 button.addClass("reactivate");
                 button.removeClass("deactivate");
                 button.text(i18n.t("Reactivate"));
-                row.addClass("deactivated_user");
-                row.find(".user-admin-settings").hide();
+
+                $(".active_user_row").remove();
+                var $deactivated_user = templates.render("admin_user_list", {user: {
+                    email: email,
+                    full_name: $(".active_user_row .user_name").text(),
+                    is_active: false
+                }});
+                deactivated_users_table.append($($deactivated_user).addClass("deactivated_user"));
             }
         });
     });
