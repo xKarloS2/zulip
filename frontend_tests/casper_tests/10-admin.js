@@ -13,10 +13,10 @@ casper.then(function () {
 
 casper.then(function () {
     casper.test.info('Administration page');
-    casper.click('a[href^="#administration"]');
+    casper.click('a[href^="#administration/organization-settings"]');
 });
 
-casper.waitForSelector('#administration.tab-pane.active', function () {
+casper.waitForSelector('#settings_overlay_container.show', function () {
     casper.test.info('Administration page is active');
     casper.test.assertUrlMatch(/^http:\/\/[^\/]+\/#administration/, 'URL suggests we are on administration page');
 });
@@ -25,7 +25,6 @@ casper.waitForSelector('#administration.tab-pane.active', function () {
 casper.waitForSelector('input[type="checkbox"][id="id_realm_create_stream_by_admins_only"]', function () {
     casper.click('input[type="checkbox"][id="id_realm_create_stream_by_admins_only"]');
     casper.click('form.admin-realm-form input.button');
-
 });
 
 casper.then(function () {
@@ -106,8 +105,8 @@ casper.then(function () {
     casper.click('#settings-dropdown');
     casper.click('a[href^="#administration"]');
 
-    casper.test.assertSelectorHasText("#administration a[aria-controls='deactivated-users']", "Deactivated Users");
-    casper.click("#administration a[aria-controls='deactivated-users']");
+    casper.test.assertSelectorHasText("li[data-section='deactivated-users-admin']", "Deactivated Users");
+    casper.click("li[data-section='deactivated-users-admin']");
 
 
     casper.waitForSelector('#admin_deactivated_users_table .user_row[id="user_cordelia@zulip.com"] .reactivate', function () {
@@ -121,8 +120,8 @@ casper.then(function () {
         casper.test.assertSelectorHasText('#admin_deactivated_users_table .user_row[id="user_cordelia@zulip.com"]', 'Deactivate');
     });
 
-    casper.test.assertSelectorHasText("#administration a[aria-controls='organization']", "Organization");
-    casper.click("#administration a[aria-controls='organization']");
+    casper.test.assertSelectorHasText("li[data-section='organization-settings']", "Organization Settings");
+    casper.click("li[data-section='organization-settings']");
 });
 
 casper.then(function () {
@@ -426,7 +425,7 @@ casper.then(function () {
     casper.test.info('Administration page');
     casper.click('a[href^="#administration"]');
     casper.test.assertUrlMatch(/^http:\/\/[^\/]+\/#administration/, 'URL suggests we are on administration page');
-    casper.test.assertExists('#administration.tab-pane.active', 'Administration page is active');
+    casper.test.assertExists('#settings_overlay_container.show', 'Administration page is active');
 });
 
 casper.waitForSelector('form.admin-realm-form input.button');
