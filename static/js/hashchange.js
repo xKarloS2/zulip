@@ -192,10 +192,10 @@ function do_hashchange(from_reload) {
 // hash change functionally inert.
 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- - -- //
 
-function hashchanged(from_reload) {
+function hashchanged(from_reload, e) {
     var old_hash;
-    if (from_reload !== true) {
-        old_hash = "#" + from_reload.oldURL.split(/#/).slice(1).join("");
+    if (e) {
+        old_hash = "#" + e.oldURL.split(/#/).slice(1).join("");
         ignore.last = old_hash;
     }
 
@@ -207,7 +207,7 @@ function hashchanged(from_reload) {
             ignore.prev = old_hash;
         }
     } else if (!should_ignore(window.location.hash) && !ignore.flag) {
-        if (from_reload !== true) {
+        if (e) {
             settings.hide_settings_page();
         }
         changing_hash = true;
@@ -226,8 +226,8 @@ function hashchanged(from_reload) {
 exports.initialize = function () {
     // jQuery doesn't have a hashchange event, so we manually wrap
     // our event handler
-    window.onhashchange = blueslip.wrap_function(function () {
-        hashchanged(false);
+    window.onhashchange = blueslip.wrap_function(function (e) {
+        hashchanged(false, e);
     });
     hashchanged(true);
 };
