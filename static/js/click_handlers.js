@@ -253,7 +253,7 @@ $(function () {
     popovers.register_click_handlers();
     notifications.register_click_handlers();
 
-    $('.logout_button').click(function (e) {
+    $('body').on('click', '.logout_button', function (e) {
         $('#logout_form').submit();
     });
     $('.restart_get_events_button').click(function (e) {
