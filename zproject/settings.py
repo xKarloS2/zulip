@@ -207,6 +207,7 @@ DEFAULT_SETTINGS = {'TWITTER_CONSUMER_KEY': '',
                     'ANALYTICS_LOCK_DIR': "/home/zulip/deployments/analytics-lock-dir",
                     'PASSWORD_MIN_LENGTH': 6,
                     'PASSWORD_MIN_ZXCVBN_QUALITY': 0.5,
+                    'PUSH_NOTIFICATION_BOUNCER_URL': None,
                     }
 
 for setting_name, setting_val in six.iteritems(DEFAULT_SETTINGS):
