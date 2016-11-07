@@ -24,6 +24,8 @@ from social.exceptions import AuthFailed
 from django.contrib.auth import authenticate
 from zerver.lib.utils import check_subdomain, get_subdomain
 
+import ldap
+
 def pad_method_dict(method_dict):
     # type: (Dict[text_type, bool]) -> Dict[text_type, bool]
     """Pads an authentication methods dict to contain all auth backends
@@ -323,6 +325,9 @@ class ZulipLDAPAuthBackend(ZulipLDAPAuthBackendBase):
         except Realm.DoesNotExist:
             return None
         except ZulipLDAPException:
+            return None
+        except Exception as e: # Should be except ldap.LDAPError
+            logging.exception("Unexpected LDAP exception:")
             return None
 
     def get_or_create_user(self, username, ldap_user):
