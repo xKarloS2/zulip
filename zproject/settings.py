@@ -163,6 +163,8 @@ DEFAULT_SETTINGS = {'TWITTER_CONSUMER_KEY': '',
                     'ROOT_SUBDOMAIN_ALIASES': ["www"],
                     'REMOTE_POSTGRES_HOST': '',
                     'REMOTE_POSTGRES_SSLMODE': '',
+                    'GCI_MODE_ENABLED': False,
+                    'GCI_STREAMS': [],
                     # Default GOOGLE_CLIENT_ID to the value needed for Android auth to work
                     'GOOGLE_CLIENT_ID': '835904834568-77mtr5mtmpgspj9b051del9i9r5t4g4n.apps.googleusercontent.com',
                     'SOCIAL_AUTH_GITHUB_KEY': None,
