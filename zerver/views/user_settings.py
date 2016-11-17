@@ -65,11 +65,10 @@ def json_change_settings(request, user_profile,
         if not authenticate(username=user_profile.email, password=old_password):
             return json_error(_("Wrong password!"))
         do_change_password(user_profile, new_password)
-        # In Django 1.10, password changes invalidates sessions, see
+        # In Django 1.10, change in password invaidates the session, see
         # https://docs.djangoproject.com/en/1.10/topics/auth/default/#session-invalidation-on-password-change
-        # for details. To avoid this logging the user out of his own
-        # session (which would provide a confusing UX at best), we
-        # update the session hash here.
+        # for details. To avoid that the user logs out of his own session we
+        # update the session hash.
         update_session_auth_hash(request, user_profile)
 
     result = {}
