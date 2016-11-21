@@ -8,6 +8,7 @@ import platform
 import subprocess
 
 os.environ["PYTHONUNBUFFERED"] = "y"
+os.environ["LC_ALL"] = "en_US.UTF-8"
 
 PY2 = sys.version_info[0] == 2
 
