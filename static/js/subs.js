@@ -730,8 +730,6 @@ function show_new_stream_modal() {
     $('#announce-new-stream input').prop('checked', true);
 
     $("#stream_name_error").hide();
-
-    //$('#stream-creation').modal("show");
 }
 
 exports.invite_user_to_stream = function (user_email, stream_name, success, failure) {
@@ -1003,7 +1001,7 @@ $(function () {
         exports.invite_user_to_stream(principal, stream, invite_success, invite_failure);
     });
 
-    function show_stream_row (e) {
+    function show_stream_row (node, e) {
         $(".display-type #add_new_stream_title").hide();
         $(".display-type #stream_settings_title, .right .settings").show();
         $(".stream-row.active").removeClass("active");
@@ -1011,8 +1009,8 @@ $(function () {
             $("#subscriptions_table .nothing-selected").hide();
 
             $("#stream-creation").addClass("hide");
-            $(this).addClass("active");
-            exports.show_settings_for(get_stream_name(this));
+            $(node).addClass("active");
+            exports.show_settings_for(get_stream_name(node));
         } else {
             $("#stream-creation").addClass("hide");
             $("#subscriptions_table .settings .show").removeClass("show");
@@ -1022,7 +1020,7 @@ $(function () {
 
     $("#subscriptions_table").on("click", ".stream-row", function (e) {
         if ($(e.target).closest(".check, .subscription_settings").length === 0) {
-            show_stream_row.call(this, e);
+            show_stream_row(this, e);
         }
     });
 
@@ -1031,7 +1029,7 @@ $(function () {
 
         $("#subscriptions_table").on("click", sel, function (e) {
             if ($(e.target).is(sel)) {
-                show_stream_row();
+                show_stream_row(this);
             }
         });
     }());
