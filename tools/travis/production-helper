@@ -56,6 +56,7 @@ if ! diff -ur /tmp/http-headers-processed ~/success-http-headers.txt; then
     echo "Displaying the contents of the server's error log:"
     echo
     cat /var/log/zulip/errors.log
+    cat /var/log/zulip/server.log
     exit 1
 fi
 
