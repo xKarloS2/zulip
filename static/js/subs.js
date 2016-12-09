@@ -401,8 +401,8 @@ exports.mark_subscribed = function (stream_name, attrs) {
 
     if (! sub.subscribed) {
         // Add yourself to a stream we already know about client-side.
-        var color = get_color();
-        exports.set_color(sub.stream_id, color);
+        sub.color = attrs.color;
+        // Update color display?
         sub.subscribed = true;
         if (attrs) {
             stream_data.set_subscriber_emails(sub, attrs.subscribers);
@@ -688,10 +688,21 @@ exports.update_subscription_properties = function (stream_name, property, value)
 function ajaxSubscribe(stream) {
     // Subscribe yourself to a single stream.
     var true_stream_name;
+    var stream_to_create = {name: stream};
+    var sub = stream_data.get_sub(stream);
+    if (sub !== undefined) {
+        stream_to_create.color = sub.color;
+    } else if (page_params.is_zephyr_mirror_realm) {
+        var used_colors = stream_color.get_colors();
+        sub.color = stream_color.pick_color(used_colors);
+    } else {
+        // This code path probably can just be a blueslip.error
+        blueslip.error("Subscribe with no color, just picking one!");
+    }
 
     return channel.post({
         url: "/json/users/me/subscriptions",
-        data: {subscriptions: JSON.stringify([{name: stream}]) },
+        data: {subscriptions: JSON.stringify([stream_to_create]) },
         success: function (resp, statusText, xhr, form) {
             $("#create_stream_name").val("");
 
