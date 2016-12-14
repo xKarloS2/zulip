@@ -40,7 +40,7 @@ import logging
 import six
 from typing import Any, Callable, Dict, Mapping, Optional, Tuple, Union
 
-__version__ = "0.2.5"
+__version__ = "0.3.0"
 
 logger = logging.getLogger(__name__)
 
