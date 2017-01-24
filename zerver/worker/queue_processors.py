@@ -278,7 +278,7 @@ class ErrorReporter(QueueProcessingWorker):
         if settings.DEPLOYMENT_ROLE_KEY:
             self.staging_client.forward_error(event['type'], event['report'])
         elif settings.ERROR_REPORTING:
-            do_report_error(settings.DEPLOYMENT_ROLE_NAME, event['type'], event['report'])
+            do_report_error(settings.EXTERNAL_HOST, event['type'], event['report'])
 
 @assign_queue('slow_queries')
 class SlowQueryWorker(QueueProcessingWorker):
