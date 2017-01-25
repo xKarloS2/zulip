@@ -16,13 +16,3 @@ class ZulipExceptionReporterFilter(SafeExceptionReporterFilter):
             if var in filtered_post:
                 filtered_post[var] = '**********'
         return filtered_post
-
-    def get_request_repr(self, request):
-        # type: (HttpRequest) -> str
-        if request is None:
-            return repr(None)
-        else:
-            return build_request_repr(request,
-                                      POST_override=self.get_post_parameters(request),
-                                      COOKIES_override="**********",
-                                      META_override="**********")
