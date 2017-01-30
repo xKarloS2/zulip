@@ -149,6 +149,7 @@ DEFAULT_SETTINGS = {'TWITTER_CONSUMER_KEY': '',
                     'CAMO_URI': '',
                     'ENABLE_FEEDBACK': PRODUCTION,
                     'SEND_MISSED_MESSAGE_EMAILS_AS_USER': False,
+                    'SEND_LOGIN_EMAILS': True,
                     'SERVER_EMAIL': None,
                     'FEEDBACK_EMAIL': None,
                     'WELCOME_EMAIL_SENDER': None,
@@ -320,6 +321,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'zerver.middleware.SetRemoteAddrFromForwardedFor',
 )
 
 ANONYMOUS_USER_ID = None
@@ -1150,3 +1152,6 @@ PROFILE_ALL_REQUESTS = False
 CROSS_REALM_BOT_EMAILS = set(('feedback@zulip.com', 'notification-bot@zulip.com'))
 
 CONTRIBUTORS_DATA = os.path.join(STATIC_ROOT, 'generated/github-contributors.json')
+
+# Geo location
+GEOIP_PATH = '/srv/zulip/geo'
