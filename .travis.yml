@@ -1,11 +1,12 @@
 dist: trusty
 before_install:
+   - sudo apt-get install -y moreutils
    - nvm install 0.10
 install:
   # Disable Travis CI's built-in NVM installation
   - mv ~/.nvm ~/.travis-nvm-disabled
   - pip install coveralls
-  - tools/travis/setup-$TEST_SUITE
+  - tools/travis/setup-$TEST_SUITE | ts
   - tools/clean-venv-cache --travis
 cache:
   - apt: false
@@ -38,7 +39,7 @@ matrix:
 # command to run tests
 script:
   - unset GEM_PATH
-  - ./tools/travis/$TEST_SUITE
+  - ./tools/travis/$TEST_SUITE | ts
 sudo: required
 services:
 - docker
