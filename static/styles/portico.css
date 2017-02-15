@@ -719,7 +719,6 @@ a.bottom-signup-button {
 }
 
 .api-page-header,
-.apps-page-header,
 .authors-page-header,
 .feature-page-header,
 .integrations-page-header,
@@ -746,14 +745,12 @@ a.bottom-signup-button {
 }
 
 .api-page-header,
-.apps-page-header,
 .authors-page-header,
 .feature-page-header,
 .integrations-page-header {
     padding-top: 56px;
 }
 
-.apps-page-header,
 .integrations-page-header,
 .register-page-header,
 .api-page-header {
