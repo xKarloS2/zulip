@@ -1137,11 +1137,11 @@ class EditMessageTest(ZulipTestCase):
         message_history = json_response['message_history']
 
         # Checks content of message after edit.
-        self.assertEqual(message_history[0]['prev_rendered_content'],
+        self.assertEqual(message_history[0]['content_html_diff'],
                          '<p>content <span class="highlight_text_replaced">after</span> edit</p>')
 
         # Checks content of message before edit.
-        self.assertEqual(message_history[1]['prev_rendered_content'],
+        self.assertEqual(message_history[0]['prev_rendered_content'],
                          '<p>content before edit</p>')
 
     def test_edit_message_content_limit(self):
