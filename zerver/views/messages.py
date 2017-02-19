@@ -930,8 +930,6 @@ def get_message_edit_history(request, user_profile,
 
     # Fill in all the extra data that will make it usable
     fill_edit_history_entries(message_edit_history, message)
-    for entry in message_edit_history:
-        print(entry)
 
     return json_success({"message_history": message_edit_history})
 
