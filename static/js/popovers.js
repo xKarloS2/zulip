@@ -837,6 +837,7 @@ exports.register_click_handlers = function () {
             data: {message_id: JSON.stringify(message.id)},
             success: function (data) {
                 var message_history = data.message_history;
+                var content_edit_history = [];
 
                 _.each(message_history, function (msg, index) {
                     var extend_dict = {};
@@ -848,14 +849,19 @@ exports.register_click_handlers = function () {
                         msg.timestamp = message_history[index + 1].timestamp;
                         extend_dict.posted_or_edited = "Edited by";
                     }
+                    if (msg.edited_by) {
+                        msg.edited_by = people.get_person_from_user_id(msg.edited_by).full_name;
+                    }
 
-                    var time = new XDate(msg.timestamp * 1000);
-                    msg.timestamp = timerender.render_now(time)[0];
+                    msg.timestamp = timerender.get_full_time(msg.timestamp);
 
                     _.extend(msg, extend_dict);
+                    if (msg.prev_content) {
+                        content_edit_history.push(msg);
+                    }
                 });
 
-                message_history = message_history.reverse();
+                message_history = content_edit_history.reverse();
                 $('#message-history').html(templates.render('message_edit_history', {
                     edited_messages: message_history,
                 }));
