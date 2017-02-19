@@ -56,7 +56,7 @@ import re
 import ujson
 import datetime
 
-from six.moves import map, zip
+from six.moves import map
 import six
 
 class BadNarrowOperator(JsonableError):
@@ -880,39 +880,56 @@ def json_update_message(request, user_profile, message_id):
     # type: (HttpRequest, UserProfile, int) -> HttpResponse
     return update_message_backend(request, user_profile)
 
-def highlight_message_differences(message_history, sender_email):
-    # type: (List[Dict[str, Any]], str) -> List[Dict[str, Any]]
-    for edited_msg, prev_msg in zip(message_history, message_history[1:]):
-        # Iterate over message edit history
-        rendered_content = highlight_html_differences(prev_msg['prev_content'],
-                                                      edited_msg['prev_content'])
-        edited_msg_index = message_history.index(edited_msg)
-        message_history[edited_msg_index]['prev_rendered_content'] = rendered_content
-        edited_by_user = get_user_profile_by_id(message_history[edited_msg_index + 1]['edited_by'])
-        message_history[edited_msg_index]['edited_by'] = edited_by_user.email
+def fill_edit_history_entries(message_history, message):
+    # type: (List[Dict, str, Any], Message) -> None
+    """This fills out the message edit history entries from the database,
+    which are designed to have the minimum data possible, to instead
+    have the current topic + content as of that time, plus data on
+    whatever changed.  This makes it much simpler to do future
+    processing.
 
-    # Add sender email as edited_by to original message
-    message_history[len(message_history)-1]['edited_by'] = sender_email
-    return message_history
+    Note that this mutates what is passed to it, which is sorta a bad pattern.
+    """
+    edits = []
+    prev_content = message.content
+    prev_rendered_content = message.rendered_content
+    prev_topic = message.subject
+    prev_timestamp = message.last_edit_time
+    for entry in message_history:
+        entry['topic'] = prev_topic
+        if 'prev_subject' in entry:
+            # We replace use of 'subject' with 'topic' for downstream simplicity
+            prev_topic = entry['prev_subject']
+            entry['prev_topic'] = prev_topic
+            del entry['prev_subject']
+
+        entry['content'] = prev_content
+        entry['rendered_content'] = prev_rendered_content
+        if 'prev_content' in entry:
+            del entry['prev_rendered_content_version']
+            prev_content = entry['prev_content']
+            prev_rendered_content = entry['prev_rendered_content']
+            entry['content_html_diff'] = highlight_html_differences(
+                prev_rendered_content,
+                entry['rendered_content'])
 
 @has_request_variables
 def get_message_edit_history(request, user_profile,
                              message_id=REQ(converter=to_non_negative_int)):
     # type: (HttpRequest, UserProfile, int) -> HttpResponse
+
+    # Confirm we have access to the message's history
     message, user_message = access_message(user_profile, message_id)
 
-    # Convert message to dictionary
-    message_dict = message_to_dict(message, True)
+    # Extract the message edit history from the message
+    message_edit_history = ujson.loads(message.edit_history)
 
-    # Get message edit history
-    message_edit_history = message_dict['edit_history']
-    sender_email = message_dict['sender_email']
+    # Fill in all the extra data that will make it usable
+    fill_edit_history_entries(message_edit_history, message)
+    for entry in message_edit_history:
+        print(entry)
 
-    # Add current message in message_edit_history
-    message_edit_history.insert(0, {'prev_content': message_dict['content'],
-                                    'timestamp': message_dict['last_edit_timestamp']})
-    updated_message_history = highlight_message_differences(message_edit_history, sender_email)
-    return json_success({"message_history": updated_message_history})
+    return json_success({"message_history": message_edit_history})
 
 @has_request_variables
 def update_message_backend(request, user_profile,
