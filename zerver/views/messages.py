@@ -38,6 +38,7 @@ from zerver.lib.message import (
 )
 from zerver.lib.response import json_success, json_error
 from zerver.lib.sqlalchemy_utils import get_sqlalchemy_connection
+from zerver.lib.timestamp import datetime_to_timestamp
 from zerver.lib.utils import statsd
 from zerver.lib.validator import \
     check_list, check_int, check_dict, check_string, check_bool
@@ -890,11 +891,10 @@ def fill_edit_history_entries(message_history, message):
 
     Note that this mutates what is passed to it, which is sorta a bad pattern.
     """
-    edits = []
     prev_content = message.content
     prev_rendered_content = message.rendered_content
     prev_topic = message.subject
-    prev_timestamp = message.last_edit_time
+    prev_timestamp = datetime_to_timestamp(message.last_edit_time)
     for entry in message_history:
         entry['topic'] = prev_topic
         if 'prev_subject' in entry:
@@ -912,6 +912,10 @@ def fill_edit_history_entries(message_history, message):
             entry['content_html_diff'] = highlight_html_differences(
                 prev_rendered_content,
                 entry['rendered_content'])
+
+        timestamp = entry['timestamp']
+        entry['timestamp'] = prev_timestamp
+        prev_timestamp = timestamp
 
 @has_request_variables
 def get_message_edit_history(request, user_profile,
