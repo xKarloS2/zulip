@@ -623,11 +623,10 @@ $(function () {
         $(".settings-section" + sel + ", .settings-wrapper" + sel).addClass("show");
     });
 
-    $("#settings_overlay_container").on("click", function (e) {
-        var $target = $(e.target);
-        if ($target.is(".exit-sign, .exit")) {
-            hashchange.exit_settings();
-        }
+    $("#settings_overlay_container").on("click", ".exit, .exit-sign", function (e) {
+        hashchange.exit_settings();
+        e.preventDefault();
+        e.stopPropagation();
     });
 
     (function () {
