@@ -17,3 +17,8 @@ if os.path.exists(activate_this):
     # this file will exist in production
     exec(open(activate_this).read(), {}, dict(__file__=activate_this))
 sys.path.append(BASE_DIR)
+print(activate_this)
+print(sys.path)
+import subprocess
+subprocess.check_call("ls -l /home/zulip/deployments/current")
+subprocess.check_call("ls -l /home/zulip/deployments/current/zulip-venv")
