@@ -24,5 +24,6 @@ import glob
 if os.path.exists("/home/zulip/deployments/current"):
     subprocess.check_call(["ls", "-l", "/home/zulip/deployments"])
     subprocess.check_call(["ls", "-l", "/home/zulip/deployments/current"])
-    subprocess.check_call(["ls", "-l", glob.glob("/home/zulip/deployments/*venv*")])
+    subprocess.check_call(["ls", "-l", "/home/zulip/deployments/current/"])
+    subprocess.check_call(["ls", "-l"] + glob.glob("/home/zulip/deployments/*venv*"))
 
