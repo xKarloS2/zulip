@@ -20,7 +20,9 @@ sys.path.append(BASE_DIR)
 print(activate_this)
 print(sys.path)
 import subprocess
+import glob
 if os.path.exists("/home/zulip/deployments/current"):
+    subprocess.check_call(["ls", "-l", "/home/zulip/deployments"])
     subprocess.check_call(["ls", "-l", "/home/zulip/deployments/current"])
-    subprocess.check_call(["ls", "-l", "/home/zulip/deployments/*venv*"])
+    subprocess.check_call(["ls", "-l", glob.glob("/home/zulip/deployments/*venv*")])
 
