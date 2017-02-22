@@ -20,5 +20,6 @@ sys.path.append(BASE_DIR)
 print(activate_this)
 print(sys.path)
 import subprocess
-subprocess.check_call("ls -l /home/zulip/deployments/current")
-subprocess.check_call("ls -l /home/zulip/deployments/current/zulip-venv")
+if os.path.exists("/home/zulip/deployments/current"):
+    subprocess.check_call("ls -l /home/zulip/deployments/current")
+    subprocess.check_call("ls -l /home/zulip/deployments/current/zulip-venv")
