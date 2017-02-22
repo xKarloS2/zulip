@@ -21,5 +21,6 @@ print(activate_this)
 print(sys.path)
 import subprocess
 if os.path.exists("/home/zulip/deployments/current"):
-    subprocess.check_call("ls -l /home/zulip/deployments/current")
-    subprocess.check_call("ls -l /home/zulip/deployments/current/zulip-venv")
+    subprocess.check_call(["ls", "-l", "/home/zulip/deployments/current"])
+    subprocess.check_call(["ls", "-l", "/home/zulip/deployments/*venv*"])
+
