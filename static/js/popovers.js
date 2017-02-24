@@ -67,12 +67,12 @@ function show_message_info_popover(element, id) {
             sender_email: sender_email,
             pm_with_uri: narrow.pm_with_uri(sender_email),
             sent_by_uri: narrow.by_sender_uri(sender_email),
+            sender_image: "avatar/" + sender_email + "/medium",
             narrowed: narrow.active(),
         };
 
-        var ypos = elt.offset().top - viewport.scrollTop();
         elt.popover({
-            placement: (ypos > (viewport.height() - 300)) ? 'top' : 'bottom',
+            template: '<div class="popover message-info-popover"><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>',
             title:     templates.render('message_info_popover_title',   args),
             content:   templates.render('message_info_popover_content', args),
             trigger:   "manual",
