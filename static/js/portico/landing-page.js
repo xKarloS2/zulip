@@ -133,6 +133,12 @@ var events = function () {
     if (/\/integrations\/*/.test(window.location.pathname)) {
         integration_events();
     }
+
+    $(window).scroll(function () {
+        if ($(document.activeElement).is(".price-box")) {
+            document.activeElement.blur();
+        }
+    });
 };
 
 // run this callback when the page is determined to have loaded.
@@ -141,6 +147,13 @@ var load = function () {
     setTimeout(function () {
         $(".portico-landing").addClass("show");
     }, 200);
+
+    (function () {
+        // switch the hero images once every 4 seconds.
+        setInterval(function () {
+            $("x-grad").toggleClass("orange-grad blue-grad");
+        }, 4000);
+    }());
 
     // display the `x-grad` element a second after load so that the slide up
     // transition on the .portico-landing is nice and smooth.
