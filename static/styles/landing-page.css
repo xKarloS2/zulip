@@ -257,6 +257,11 @@ a.arrow:after {
     margin-left: 5px;
 }
 
+/* because the background of .testimonials is #444. */
+.testimonials a .arrow {
+    color: #444;
+}
+
 h1 {
     font-size: 2em;
 }
@@ -524,7 +529,8 @@ a:not(.no-style):hover:before {
 
 @media (max-width: 768px) {
     nav,
-    .features {
+    .features,
+    .testimonials .padded-content {
         padding-left: 50px;
         padding-right: 50px;
     }
@@ -661,6 +667,10 @@ a:not(.no-style):hover:before {
     }
 
     .main .padded-content {
+        padding: 20px;
+    }
+
+    .testimonials .padded-content {
         padding: 20px;
     }
 
